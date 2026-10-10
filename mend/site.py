@@ -9,6 +9,7 @@ import json
 import re
 import sys
 
+from mend.demo import demo_block
 from mend.report import REPO, load_rounds, load_runs
 from mend.tasks import ROOT
 
@@ -71,6 +72,7 @@ def repeat_card(label: str, group: list[dict], task: str | None, cls: str) -> st
 
 def render() -> str:
     f = facts()
+    demo = demo_block(f["first"], f["story"]["title"] if f["story"] else "")
     first, story = f["first"], f["story"]
     kept = [r for r in f["rounds"] if r["kept"]]
     if kept:
@@ -214,7 +216,7 @@ footer{{padding:48px 0;color:var(--mute);font-size:14px}}
   <div class="hero-grid">
     <div><p class="intro">Mend reads its own neatlogs traces, works out why it failed, patches its own code, and keeps
     the fix only if a full re-run gets better. Otherwise it reverts.</p>
-    <div class="cta"><a class="pill" href="#evidence">See the evidence</a><a class="pill ghost" href="report.html">Full report</a></div></div>
+    <div class="cta"><a class="pill" href="?demo=1">&#9654; Watch it fix itself</a><a class="pill ghost" href="#evidence">See the evidence</a><a class="pill ghost" href="report.html">Full report</a></div></div>
     {hero_stat}
   </div>
 </div></header>
@@ -251,6 +253,7 @@ footer{{padding:48px 0;color:var(--mute);font-size:14px}}
 </div></section>
 
 <footer><div class="wrap">Mend · built during neatHack, 10–12 October 2026 · <a href="{REPO}">github.com/thegoodengineers/mend</a></div></footer>
+{demo}
 </body></html>"""
 
 
