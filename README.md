@@ -11,6 +11,21 @@ keeps the fix only if a full re-run gets better.** Built during
 Every number in this README comes from a file in [`runs/`](runs/) or [`evidence/`](evidence/).
 If a number has no file behind it, it is not here.
 
+## For judges: 60 seconds
+
+| neatHack evidence item | Where to check it |
+|---|---|
+| The agent improved (before/after with numbers) | [rounds table](#self-repair-rounds-all-four-kept), [3-vs-3 repeat runs](#repeatable-not-lucky-same-28-tasks-3-runs-each), [held-out test](#held-out-test-10-bugs-the-supervisor-never-saw); [live recording](video/live/mend-live.mp4) |
+| You used neatlogs | [traced call](evidence/t02-first-traced-call.txt), [trace read back over MCP](evidence/t04-trace-readback.txt), [task 23 before](evidence/task23-before-trace.json) / [after](evidence/task23-after-trace.json) traces; 3 regression-guard detections ([`mend/detections.py`](mend/detections.py)) |
+| You used Entire | [round 4 checkpoint](https://entire.io/gh/thegoodengineers/mend/commit/7e2148e201fdaa9b2b3f921d1f2651950f537205) (the supervisor's own Claude Code session); the supervisor reads past checkpoints back as repair memory |
+| You used cfo.ai | [business plan](docs/business-plan.md) and its [cfo.ai export](docs/business-plan-cfo-ai.xlsx) |
+| The agent recovers from failures | [run_tests timed out, then fixed](evidence/t17-recovery-from-timeout.txt); in the live recording a tool call fails ("Permission denied") and the worker carries on |
+| You built in public | [first #neatHack post](https://x.com/theintrodev/status/2108851736765141188) |
+| Code written during the hackathon | [commit history](https://github.com/thegoodengineers/mend/commits/main) (first commit: plans only, as the rules allow) |
+
+Every number in this README is recomputed from the run files by [`mend/verify.py`](mend/verify.py) on
+every push ([CI](https://github.com/thegoodengineers/mend/actions)).
+
 ## How it works
 
 ```
