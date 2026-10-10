@@ -1,0 +1,61 @@
+"""Planted-bug tasks for the worker: load them, prepare a broken copy of the sandbox, run its tests.
+
+    python -m mend.tasks --check   # every bug applies once, breaks the tests; correct code passes
+"""
+
+import json
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+SANDBOX = ROOT / "sandbox"
+TASKS_FILE = ROOT / "tasks" / "tasks.json"
+
+
+def load_tasks() -> list[dict]:
+    return json.loads(TASKS_FILE.read_text(encoding="utf-8"))
+
+
+def prepare(task: dict) -> Path:
+    """A fresh temp copy of the sandbox with the task's bug applied."""
+    work = Path(tempfile.mkdtemp(prefix=f"mend-{task['id']}-"))
+    shutil.copytree(SANDBOX, work, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__", ".pytest_cache"))
+    for edit in task["edits"]:
+        path = work / edit["file"]
+        text = path.read_text(encoding="utf-8")
+        if text.count(edit["find"]) != 1:
+            raise ValueError(f"task {task['id']}: find text must occur exactly once in {edit['file']}")
+        path.write_text(text.replace(edit["find"], edit["replace"]), encoding="utf-8")
+    return work
+
+
+def run_tests(work: Path, pattern: str = "", timeout: int = 60) -> tuple[bool, str]:
+    """Run pytest in a sandbox copy. Returns (passed, last part of the output)."""
+    cmd = [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider"]
+    if pattern:
+        cmd += ["-k", pattern]
+    try:
+        proc = subprocess.run(cmd, cwd=work, capture_output=True, text=True, timeout=timeout)
+    except subprocess.TimeoutExpired:
+        return False, f"pytest timed out after {timeout}s"
+    return proc.returncode == 0, (proc.stdout + proc.stderr)[-4000:]
+
+
+def check() -> bool:
+    ok, out = run_tests(SANDBOX)
+    print(f"correct sandbox: {'PASS' if ok else 'FAIL'}")
+    good = ok
+    for task in load_tasks():
+        work = prepare(task)
+        passed, _ = run_tests(work)
+        shutil.rmtree(work, ignore_errors=True)
+        print(f"task {task['id']} ({task['difficulty']}): bug {'NOT CAUGHT' if passed else 'breaks tests'}")
+        good &= not passed
+    return good
+
+
+if __name__ == "__main__":
+    sys.exit(0 if "--check" in sys.argv and check() else 1)

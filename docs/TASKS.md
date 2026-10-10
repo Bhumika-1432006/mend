@@ -15,7 +15,7 @@ No task starts before the hackathon start time.
   saved to `evidence/`.
 - [x] **T04 (A) MCP read spike.** (10 Oct: `mend/traces.py`; `get_trace_context(created_after=...)` works, `search_traces` returned nothing for fresh traces.) From a script or Claude Code, call the neatlogs MCP
   `search_traces` and `get_trace_context` for the T02 trace. Done: the span tree prints.
-- [ ] **T05 (B) Sandbox repo, first 5 bugs.** `sandbox/` small Python project with pytest; each bug
+- [x] **T05 (B) Sandbox repo, first 5 bugs.** (10 Oct: done together with T08 by the lead's agent; tasks live in one file, `tasks/tasks.json`.) `sandbox/` small Python project with pytest; each bug
   is a `tasks/NN.json` (bug report text + a patch that introduces the bug). Done: for each task,
   applying the bug makes exactly its tests fail; reverting makes them pass (`pytest` script).
 - [ ] **T06 (A) Worker agent.** `mend/worker.py`: Claude + tools `list_files`, `read_file`,
@@ -23,7 +23,7 @@ No task starts before the hackathon start time.
   Done: solves at least 1 of the 5 tasks end to end; full run traced in neatlogs.
 - [ ] **T07 (A) Suite runner.** `python -m mend.suite` runs all tasks, writes `runs/<id>.json`
   (task, pass/fail, trace id, duration, tokens if available). Done: a run file exists for a full suite.
-- [ ] **T08 (B) 20 bugs.** Extend T05 to 20 tasks of mixed difficulty. Done: same check as T05, 20/20.
+- [x] **T08 (B) 20 bugs.** (10 Oct: 20 tasks, 5 easy / 12 medium / 3 hard; `python -m mend.tasks --check` confirms all 20 break the tests and the correct sandbox passes 29/29.) Extend T05 to 20 tasks of mixed difficulty. Done: same check as T05, 20/20.
 - [ ] **T09 (B) Baseline.** Run the suite 3 times on the unmodified worker. Done: the three pass
   counts are recorded in `hackathon.md` with run ids.
 - [ ] **T10 (A) Supervisor: diagnose.** `mend/supervisor.py` takes a run file, pulls each failed

@@ -1,0 +1,267 @@
+[
+  {
+    "id": "01",
+    "difficulty": "easy",
+    "title": "Business days land on Saturday",
+    "report": "Due dates computed with add_business_days sometimes land on a Saturday.",
+    "edits": [
+      {
+        "file": "invoicer/dates.py",
+        "find": "if current.weekday() < 5:",
+        "replace": "if current.weekday() <= 5:"
+      }
+    ]
+  },
+  {
+    "id": "02",
+    "difficulty": "easy",
+    "title": "Threshold discount missing",
+    "report": "A customer with a subtotal of exactly 5000 did not get the 5% volume discount.",
+    "edits": [
+      {
+        "file": "invoicer/discounts.py",
+        "find": "if subtotal >= threshold:",
+        "replace": "if subtotal > threshold:"
+      }
+    ]
+  },
+  {
+    "id": "03",
+    "difficulty": "easy",
+    "title": "Rounding 2.675",
+    "report": "to_money('2.675') returns 2.67, but we always round half up, so it should be 2.68.",
+    "edits": [
+      {
+        "file": "invoicer/money.py",
+        "find": "from decimal import ROUND_HALF_UP, Decimal",
+        "replace": "from decimal import ROUND_HALF_EVEN, Decimal"
+      },
+      {
+        "file": "invoicer/money.py",
+        "find": "quantize(CENT, rounding=ROUND_HALF_UP)",
+        "replace": "quantize(CENT, rounding=ROUND_HALF_EVEN)"
+      }
+    ]
+  },
+  {
+    "id": "04",
+    "difficulty": "easy",
+    "title": "CSV header with spaces",
+    "report": "Importing a CSV whose header has spaces after the commas fails with 'missing columns'.",
+    "edits": [
+      {
+        "file": "invoicer/csv_import.py",
+        "find": "[name.strip().lower() for name in reader.fieldnames or []]",
+        "replace": "[name.lower() for name in reader.fieldnames or []]"
+      }
+    ]
+  },
+  {
+    "id": "05",
+    "difficulty": "easy",
+    "title": "Overdue on due date",
+    "report": "Invoices are flagged overdue on their due date; they should only be overdue from the next day.",
+    "edits": [
+      {
+        "file": "invoicer/dates.py",
+        "find": "return today > due",
+        "replace": "return today >= due"
+      }
+    ]
+  },
+  {
+    "id": "06",
+    "difficulty": "medium",
+    "title": "GST halves don't add up",
+    "report": "For odd amounts like 18.01, CGST + SGST no longer add up to the tax.",
+    "edits": [
+      {
+        "file": "invoicer/tax.py",
+        "find": "return {\"cgst\": half, \"sgst\": tax - half}",
+        "replace": "return {\"cgst\": half, \"sgst\": half}"
+      }
+    ]
+  },
+  {
+    "id": "07",
+    "difficulty": "medium",
+    "title": "Split gives extra cents to the end",
+    "report": "split_evenly gives the leftover paise to the last parts; the spec says earlier parts get them.",
+    "edits": [
+      {
+        "file": "invoicer/money.py",
+        "find": "(1 if i < extra else 0)",
+        "replace": "(1 if i >= parts - extra else 0)"
+      }
+    ]
+  },
+  {
+    "id": "08",
+    "difficulty": "medium",
+    "title": "Coupon with spaces ignored",
+    "report": "A coupon pasted as ' welcome ' (with spaces) is not applied.",
+    "edits": [
+      {
+        "file": "invoicer/discounts.py",
+        "find": "coupons.get(code.strip().upper()",
+        "replace": "coupons.get(code.upper()"
+      }
+    ]
+  },
+  {
+    "id": "09",
+    "difficulty": "medium",
+    "title": "Tax too high on discounted invoices",
+    "report": "Tax on discounted invoices is too high. Tax should be charged on the amount after discount.",
+    "edits": [
+      {
+        "file": "invoicer/invoice.py",
+        "find": "ratio = (sub - self.discount(coupons)) / sub",
+        "replace": "ratio = Decimal(1)"
+      }
+    ]
+  },
+  {
+    "id": "10",
+    "difficulty": "medium",
+    "title": "EOM due date wrong",
+    "report": "Invoices with EOM terms get a due date in the previous month.",
+    "edits": [
+      {
+        "file": "invoicer/dates.py",
+        "find": "next_month = issued.replace(day=28) + timedelta(days=4)",
+        "replace": "next_month = issued + timedelta(days=4)"
+      }
+    ]
+  },
+  {
+    "id": "11",
+    "difficulty": "medium",
+    "title": "Capitalised category crashes",
+    "report": "A CSV line with category 'Reduced' later crashes the tax calculation with KeyError.",
+    "edits": [
+      {
+        "file": "invoicer/csv_import.py",
+        "find": "(row.get(\"category\") or \"standard\").strip().lower() or \"standard\"",
+        "replace": "(row.get(\"category\") or \"standard\").strip() or \"standard\""
+      }
+    ]
+  },
+  {
+    "id": "12",
+    "difficulty": "medium",
+    "title": "Negative amounts print two minus signs",
+    "report": "format_money(Decimal('-12'), 'USD') prints '-USD -12.00'.",
+    "edits": [
+      {
+        "file": "invoicer/money.py",
+        "find": "return f\"{sign}{currency} {abs(amount):,.2f}\"",
+        "replace": "return f\"{sign}{currency} {amount:,.2f}\""
+      }
+    ]
+  },
+  {
+    "id": "13",
+    "difficulty": "medium",
+    "title": "Typo categories become tax-free",
+    "report": "A line with a misspelled tax category is silently charged zero tax instead of raising an error.",
+    "edits": [
+      {
+        "file": "invoicer/tax.py",
+        "find": "return to_money(amount * RATES[category])",
+        "replace": "return to_money(amount * RATES.get(category, Decimal(\"0\")))"
+      }
+    ]
+  },
+  {
+    "id": "14",
+    "difficulty": "medium",
+    "title": "Big orders get the small discount",
+    "report": "Orders above 10000 only get 5% volume discount instead of 10%.",
+    "edits": [
+      {
+        "file": "invoicer/discounts.py",
+        "find": "VOLUME_TIERS = [(Decimal(\"10000\"), Decimal(\"10\")), (Decimal(\"5000\"), Decimal(\"5\"))]",
+        "replace": "VOLUME_TIERS = [(Decimal(\"5000\"), Decimal(\"5\")), (Decimal(\"10000\"), Decimal(\"10\"))]"
+      }
+    ]
+  },
+  {
+    "id": "15",
+    "difficulty": "hard",
+    "title": "CSV import crashes in decimal",
+    "report": "Importing our CSV crashes with a decimal InvalidOperation. Maybe the quantity column is being parsed wrong?",
+    "edits": [
+      {
+        "file": "invoicer/csv_import.py",
+        "find": "unit_price=to_money(row[\"unit_price\"])",
+        "replace": "unit_price=Decimal(row[\"unit_price\"])"
+      }
+    ]
+  },
+  {
+    "id": "16",
+    "difficulty": "hard",
+    "title": "GST split off by a paisa",
+    "report": "The intrastate GST split is off by one paisa for some amounts.",
+    "edits": [
+      {
+        "file": "invoicer/tax.py",
+        "find": "half = to_money(tax / 2)",
+        "replace": "half = tax // 2"
+      }
+    ]
+  },
+  {
+    "id": "17",
+    "difficulty": "medium",
+    "title": "One business day after Friday is Tuesday",
+    "report": "add_business_days(friday, 1) returns Tuesday instead of Monday.",
+    "edits": [
+      {
+        "file": "invoicer/dates.py",
+        "find": "while added < days:",
+        "replace": "while added <= days:"
+      }
+    ]
+  },
+  {
+    "id": "18",
+    "difficulty": "medium",
+    "title": "Empty draft invoices crash",
+    "report": "Computing the total of an empty draft invoice raises an error.",
+    "edits": [
+      {
+        "file": "invoicer/invoice.py",
+        "find": "        if sub == 0:\n            return Decimal(\"0.00\")\n",
+        "replace": ""
+      }
+    ]
+  },
+  {
+    "id": "19",
+    "difficulty": "medium",
+    "title": "Every CSV import fails",
+    "report": "Every CSV import fails with 'missing columns' even though the files look fine.",
+    "edits": [
+      {
+        "file": "invoicer/csv_import.py",
+        "find": "REQUIRED = (\"invoice\", \"description\", \"quantity\", \"unit_price\")",
+        "replace": "REQUIRED = (\"invoice\", \"description\", \"quantity\", \"unit price\")"
+      }
+    ]
+  },
+  {
+    "id": "20",
+    "difficulty": "hard",
+    "title": "Totals too high since last release",
+    "report": "Invoice totals have been too high since the last release. The tax module must be overcharging.",
+    "edits": [
+      {
+        "file": "invoicer/discounts.py",
+        "find": "return to_money(subtotal * percent / 100)",
+        "replace": "return to_money(subtotal * percent / 1000)"
+      }
+    ]
+  }
+]
