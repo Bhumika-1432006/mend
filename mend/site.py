@@ -9,6 +9,7 @@ import json
 import re
 import sys
 
+from mend.chart import dumbbell
 from mend.demo import demo_block
 from mend.report import REPO, load_rounds, load_runs
 from mend.tasks import ROOT
@@ -142,6 +143,7 @@ def render() -> str:
 <section id="rounds"><div class="wrap">
   <p class="eyebrow">Every self-repair round</p><h2>Each fix was diagnosed from traces and written by the agent.</h2>
   <p class="sub">A round keeps its patch only if more tasks pass, or the same tasks pass with at least 15% fewer tokens. Each fix is a commit written by Claude Code. From round 4 the supervisor runs in a clean clone, and Entire links each fix to the session that wrote it.</p>
+  <div class="card" style="margin:28px 0 8px;overflow-x:auto">{dumbbell(f["rounds"])}</div>
   <div class="tablewrap"><table><tr><th>#</th><th>What Mend changed in itself</th><th>Solved</th><th>Tokens</th><th>Result</th><th>Commit</th></tr>{round_rows}</table></div>
 </div></section>"""
 
