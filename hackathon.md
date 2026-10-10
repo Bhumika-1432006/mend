@@ -151,6 +151,10 @@ Not done / blocked:
 - Entire: `entire enable --agent claude-code --project --telemetry=false`, `commit_linking:
   always`. 0 checkpoints so far (hooks load at session start). `entire login` pending (builder).
 
+### 2026-10-10 - build in public, team access
+- First #neatHack post on X: https://x.com/theintrodev/status/2108851736765141188
+- All three teammates have write (or admin) access to thegoodengineers/mend.
+
 ## Demo
 pending
 
