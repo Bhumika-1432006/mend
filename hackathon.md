@@ -234,6 +234,24 @@ Not done / blocked:
   neatHack projects into a private notes folder outside the repo; an Analyst will rank
   improvements; the lead's agent builds. Video moved to submission day.
 
+### 2026-10-10 ~20:30 IST - held-out test, live recording, verification in CI, repair memory
+- Scout (background agent) catalogued 69 neatHack projects from public GitHub/X; Analyst ranked
+  improvements (private notes outside the repo). Acted on: held-out set, honest README caveats,
+  rejected-patch records, repair memory, verify + CI, judges' block, post drafts.
+- Held-out test (`tasks/heldout.json`, 10 bugs the supervisor never sees; it refuses held-out runs):
+  original worker 9/10 and 9/10 (mean 388,977 tokens), worker after 4 rounds 10/10 and 10/10
+  (mean 156,587, -59.7%). Original worker = 13defdb worker files on the current harness.
+- Round-4 worker repeats: 29/29 three times (432,858; 451,105; 456,563 tokens).
+- Live recording `video/live/mend-live.mp4` (1:55): real event logs of the original (failed, 15
+  turns, 147,457 tokens) and repaired worker (passed, 4 turns, 17,847 tokens) on task 23,
+  replayed at real speed with synthetic narration; on the site behind "Watch it fix itself".
+- Demo mode `?demo=1` (step-through replay from saved traces) kept as "Step through it".
+- `mend/verify.py` recomputes all 16 README result numbers from run files; CI added
+  (pytest, tasks --check, verify). Judges' 60-second evidence map at the top of the README.
+- Supervisor: repair memory (history of kept/reverted/rejected fixes, enriched with `entire
+  checkpoint explain`), and guard-rejected patches now leave a round record. Round 5 running.
+- Draft posts in `docs/posts.md` (8 drafts with real numbers); only 1 posted so far.
+
 ## Demo
 pending
 
