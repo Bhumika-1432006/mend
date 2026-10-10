@@ -9,3 +9,5 @@ video/renders/
 video/build/
 *.egg-info/
 site_preview.html
+video/live/rec/
+video/live/vo/

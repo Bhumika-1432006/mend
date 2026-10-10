@@ -1,0 +1,53 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@800&family=Instrument+Serif:ital@1&family=Inter:wght@500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#e6e6dd;color:#0f0f0d;font-family:Inter,sans-serif}
+.scene{position:absolute;inset:0;padding:90px 120px;box-sizing:border-box;opacity:0;transition:opacity .6s}
+.scene.on{opacity:1}
+.lbl{font:600 26px Inter;color:#5d5d55;margin:0 0 18px}
+h1{font:800 104px/1 'Inter Tight';letter-spacing:-.045em;margin:0 0 24px}
+.it{font:italic 400 46px/1.25 'Instrument Serif',serif;color:#2b2b27;margin:0;max-width:1500px}
+.term{background:#f4f4ee;border-radius:28px;padding:34px 40px;height:700px;box-sizing:border-box;overflow:hidden;box-shadow:0 30px 70px rgba(15,15,13,.10);
+      font:400 25px/1.55 'JetBrains Mono',monospace;display:flex;flex-direction:column;justify-content:flex-end}
+.term div{white-space:pre;overflow:hidden;text-overflow:ellipsis}
+.think{color:#8c8c83}.call{color:#0f0f0d;font-weight:600}.res{color:#5d5d55}.bad{color:#b83a3a!important;background:rgba(184,58,58,.08)}.ok{color:#16794a!important;background:rgba(22,121,74,.10)}
+.bar{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:22px}
+.bar h2{font:800 60px 'Inter Tight';letter-spacing:-.03em;margin:0}.bar span{font:600 30px 'JetBrains Mono';color:#5d5d55}
+.live{display:inline-block;background:#b83a3a;color:#fff;border-radius:999px;padding:4px 16px;font:600 22px Inter;margin-left:16px;vertical-align:middle}
+.big{font:800 150px/1 'Inter Tight';letter-spacing:-.05em}.grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:30px}
+.card{background:#f4f4ee;border-radius:28px;padding:40px}.card p{font:600 28px Inter;color:#5d5d55;margin:0 0 10px}
+</style></head><body>
+<div class="scene" id="intro"><p class="lbl">Live recording · real speed · Claude Haiku 4.5 worker</p><h1>Watch Mend fix itself.</h1><p class="it" id="rep"></p></div>
+<div class="scene" id="before"><div class="bar"><h2>Original worker<span class="live">LIVE</span></h2><span id="bclock"></span></div><div class="term" id="bterm"></div></div>
+<div class="scene" id="diag"><p class="lbl">Supervisor · Claude Opus 5.5 · reads the run back from neatlogs</p><h1>Diagnosis → patch → re-run.</h1>
+<p class="it">The worker rewrote a whole file it had only partly read, deleting working code. Mend gave itself a precise edit tool. Kept only because the full re-run got better.</p></div>
+<div class="scene" id="after"><div class="bar"><h2>Repaired worker<span class="live">LIVE</span></h2><span id="aclock"></span></div><div class="term" id="aterm"></div></div>
+<div class="scene" id="result"><p class="lbl">Same task · same model · both runs traced in neatlogs</p><h1>Fixed, and proven.</h1>
+<div class="grid"><div class="card"><p>Original worker</p><div class="big" style="color:#b83a3a" id="r1"></div><p id="r1s"></p></div>
+<div class="card"><p>Repaired worker</p><div class="big" style="color:#16794a" id="r2"></div><p id="r2s"></p></div></div></div>
+<script>
+const D = {"report": "A customer's payment was applied to their newest invoice instead of the oldest one.", "before": {"lines": [{"at": 0.0, "cls": "think", "text": "turn 1 \u00b7 model thinking\u2026"}, {"at": 1.36, "cls": "call", "text": "\u2192 list_files()"}, {"at": 1.36, "cls": "res", "text": "   conftest.py"}, {"at": 1.36, "cls": "think", "text": "turn 2 \u00b7 model thinking\u2026"}, {"at": 3.11, "cls": "call", "text": "\u2192 read_file(path=invoicer/ledger.py)"}, {"at": 3.11, "cls": "res", "text": "   1: \"\"\"Customer ledger: invoices, payments, credit notes, allocation, aging, interest, statements."}, {"at": 3.11, "cls": "call", "text": "\u2192 read_file(path=tests/test_ledger.py)"}, {"at": 3.11, "cls": "res", "text": "   1: from datetime import date"}, {"at": 3.11, "cls": "think", "text": "turn 3 \u00b7 model thinking\u2026"}, {"at": 5.82, "cls": "call", "text": "\u2192 run_tests(pattern=test_payments_settle_oldest_invoice_first)"}, {"at": 6.5, "cls": "res bad", "text": "   FAILED"}, {"at": 6.5, "cls": "think", "text": "turn 4 \u00b7 model thinking\u2026"}, {"at": 24.98, "cls": "call", "text": "\u2192 write_file(path=invoicer/ledger.py, content=<7526 chars>)"}, {"at": 24.99, "cls": "res bad", "text": "   wrote invoicer/ledger.py (7526 chars)"}, {"at": 24.99, "cls": "think", "text": "turn 5 \u00b7 model thinking\u2026"}, {"at": 26.54, "cls": "call", "text": "\u2192 read_file(path=invoicer/ledger.py, start=200)"}, {"at": 26.54, "cls": "res", "text": "   200:             days = (today - item.due).days"}, {"at": 26.54, "cls": "think", "text": "turn 6 \u00b7 model thinking\u2026"}, {"at": 27.79, "cls": "call", "text": "\u2192 read_file(path=invoicer/ledger.py)"}, {"at": 27.8, "cls": "res", "text": "   1: \"\"\"Customer ledger: invoices, payments, credit notes, allocation, aging, interest, statements."}, {"at": 27.8, "cls": "think", "text": "turn 7 \u00b7 model thinking\u2026"}, {"at": 29.7, "cls": "call", "text": "\u2192 run_tests(pattern=test_payments_settle_oldest_invoice_first)"}, {"at": 30.59, "cls": "res ok", "text": "   PASSED"}, {"at": 30.59, "cls": "think", "text": "turn 8 \u00b7 model thinking\u2026"}, {"at": 31.76, "cls": "call", "text": "\u2192 run_tests()"}, {"at": 32.73, "cls": "res bad", "text": "   FAILED"}, {"at": 32.73, "cls": "think", "text": "turn 9 \u00b7 model thinking\u2026"}, {"at": 34.36, "cls": "call", "text": "\u2192 read_file(path=invoicer)"}, {"at": 34.37, "cls": "res bad", "text": "   Error: [Errno 13] Permission denied: '<sandbox copy>\\\\invoicer'"}, {"at": 34.37, "cls": "think", "text": "turn 10 \u00b7 model thinking\u2026"}, {"at": 36.33, "cls": "call", "text": "\u2192 read_file(path=invoicer/ledger.py, start=195, lines=100)"}, {"at": 36.33, "cls": "res", "text": "   195:         \"\"\"Simple interest on overdue unpaid amounts, on a 365-day year, rounded per invoice.\"\"\""}, {"at": 36.33, "cls": "think", "text": "turn 11 \u00b7 model thinking\u2026"}, {"at": 37.82, "cls": "call", "text": "\u2192 read_file(path=tests/test_ledger.py)"}, {"at": 37.82, "cls": "res", "text": "   1: from datetime import date"}, {"at": 37.82, "cls": "think", "text": "turn 12 \u00b7 model thinking\u2026"}, {"at": 39.79, "cls": "call", "text": "\u2192 read_file(path=invoicer/invoice.py, lines=50)"}, {"at": 39.79, "cls": "res", "text": "   1: from dataclasses import dataclass, field"}, {"at": 39.79, "cls": "think", "text": "turn 13 \u00b7 model thinking\u2026"}, {"at": 41.84, "cls": "call", "text": "\u2192 read_file(path=invoicer/ledger.py, start=1, lines=300)"}, {"at": 41.84, "cls": "res", "text": "   1: \"\"\"Customer ledger: invoices, payments, credit notes, allocation, aging, interest, statements."}, {"at": 41.84, "cls": "think", "text": "turn 14 \u00b7 model thinking\u2026"}, {"at": 43.79, "cls": "call", "text": "\u2192 read_file(path=tests/test_money.py)"}, {"at": 43.79, "cls": "res", "text": "   1: from decimal import Decimal"}, {"at": 43.79, "cls": "think", "text": "turn 15 \u00b7 model thinking\u2026"}, {"at": 64.88, "cls": "call", "text": "\u2192 write_file(path=invoicer/ledger.py, content=<8924 chars>)"}, {"at": 64.88, "cls": "res bad", "text": "   wrote invoicer/ledger.py (8924 chars)"}], "start": 9.0, "dur": 67.61, "done": {"t": 67.14, "kind": "done", "passed": false, "turns": 15, "trace_id": "1ef860cd3df0d24e8b92aaeaa67c89b5", "tokens": 147457, "stop": "max_turns"}}, "after": {"lines": [{"at": 0.01, "cls": "think", "text": "turn 1 \u00b7 model thinking\u2026"}, {"at": 1.66, "cls": "call", "text": "\u2192 run_tests()"}, {"at": 2.37, "cls": "res bad", "text": "   FAILED"}, {"at": 2.37, "cls": "think", "text": "turn 2 \u00b7 model thinking\u2026"}, {"at": 4.88, "cls": "call", "text": "\u2192 read_file(path=tests/test_ledger.py)"}, {"at": 4.88, "cls": "res", "text": "   1\tfrom datetime import date"}, {"at": 4.88, "cls": "call", "text": "\u2192 read_file(path=invoicer/ledger.py)"}, {"at": 4.89, "cls": "res", "text": "   1\t\"\"\"Customer ledger: invoices, payments, credit notes, allocation, aging, interest, statements."}, {"at": 4.89, "cls": "think", "text": "turn 3 \u00b7 model thinking\u2026"}, {"at": 9.24, "cls": "call", "text": "\u2192 edit_file(path=invoicer/ledger.py, old=<353 chars>, new=<339 chars>)"}, {"at": 9.24, "cls": "res ok", "text": "   edited invoicer/ledger.py: replaced 7 line(s) with 7 line(s)"}, {"at": 9.24, "cls": "think", "text": "turn 4 \u00b7 model thinking\u2026"}, {"at": 10.32, "cls": "call", "text": "\u2192 run_tests()"}, {"at": 10.93, "cls": "res ok", "text": "   PASSED"}], "start": 88.61, "dur": 13.56, "done": {"t": 14.9, "kind": "done", "passed": true, "turns": 4, "trace_id": "9b29c1893919d3e9dabd5253700eaea1", "tokens": 17847, "stop": "suite_passed"}}, "diag_at": 76.61, "result_at": 102.17, "total": 114.778};
+document.getElementById('rep').textContent = '“' + D.report + '”';
+const fmt = n => n.toLocaleString('en-US');
+document.getElementById('r1').textContent = D.before.done.passed ? 'passed' : 'failed';
+document.getElementById('r1s').textContent = D.before.done.turns + ' turns · ' + fmt(D.before.done.tokens) + ' tokens · trace ' + D.before.done.trace_id.slice(0,8);
+document.getElementById('r2').textContent = D.after.done.passed ? 'passed' : 'failed';
+document.getElementById('r2s').textContent = D.after.done.turns + ' turns · ' + fmt(D.after.done.tokens) + ' tokens · trace ' + D.after.done.trace_id.slice(0,8);
+const t0 = performance.now(); const shown = {before: 0, after: 0};
+function on(id){ document.querySelectorAll('.scene').forEach(s => s.classList.toggle('on', s.id === id)); }
+function tick(){
+  const t = (performance.now() - t0) / 1000;
+  const scene = t < D.before.start ? 'intro' : t < D.diag_at ? 'before' : t < D.after.start ? 'diag' : t < D.result_at ? 'after' : 'result';
+  on(scene);
+  for (const k of ['before', 'after']) {
+    const R = D[k], local = t - R.start, term = document.getElementById(k[0] + 'term');
+    while (shown[k] < R.lines.length && R.lines[shown[k]].at <= local) {
+      const L = R.lines[shown[k]++], div = document.createElement('div'); div.className = L.cls; div.textContent = L.text; term.appendChild(div);
+      while (term.children.length > 18) term.removeChild(term.firstChild);
+    }
+    if (local >= 0) document.getElementById(k[0] + 'clock').textContent = Math.min(local, R.dur).toFixed(1) + ' s';
+  }
+  if (t < D.total) requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+</script></body></html>

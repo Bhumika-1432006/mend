@@ -12,6 +12,7 @@ pass with at least 15% fewer tokens; otherwise git revert.
 
 import json
 import os
+import re
 import subprocess
 import sys
 
@@ -112,6 +113,40 @@ def latest_run_id() -> str:
     return max(p.stem for p in RUNS.glob("*.json") if "." not in p.stem)
 
 
+def _entire_files(sha: str) -> str:
+    """Files a self-fix touched, read back from its Entire checkpoint ('' if Entire has none)."""
+    try:
+        out = subprocess.run(["entire", "checkpoint", "explain", sha], cwd=ROOT, capture_output=True,
+                             text=True, timeout=60, encoding="utf-8", errors="replace").stdout or ""
+    except (OSError, subprocess.TimeoutExpired):
+        return ""
+    if "## Files" not in out:
+        return ""
+    section = out.split("## Files", 1)[1].split("──", 1)[0]
+    return ", ".join(line.strip().strip("-` ") for line in section.splitlines() if line.strip().startswith("- "))
+
+
+def repair_history() -> str:
+    """Every fix Mend has tried on itself (kept, reverted or rejected), from round records and Entire checkpoints."""
+    lines = []
+    for p in sorted(RUNS.glob("*.round.json")):
+        r = json.loads(p.read_text(encoding="utf-8"))
+        title = r.get("title") or ""
+        if not title and r.get("diagnosis"):
+            text = (ROOT / r["diagnosis"].replace("\\", "/")).read_text(encoding="utf-8")
+            m = re.search(r"## Chosen fix: (.+)", text)
+            title = m.group(1) if m else ""
+        if r.get("rejected"):
+            lines.append(f"- REJECTED before running: {title} (reason: {r.get('reason')})")
+            continue
+        files = _entire_files(r["commit"]) if r.get("commit") else ""
+        lines.append(f"- {'KEPT' if r.get('kept') else 'REVERTED'}: {title} "
+                     f"(solved {r.get('before_passed')} -> {r.get('after_passed')}/{r.get('total')}, "
+                     f"tokens {r.get('before_tokens', 0):,} -> {r.get('after_tokens', 0):,}"
+                     + (f"; its Entire checkpoint shows it changed {files}" if files else "") + ")")
+    return "\n".join(lines)
+
+
 @neatlogs.span(kind="WORKFLOW")
 def diagnose_failures(run_id: str) -> dict:
     run = json.loads((RUNS / f"{run_id}.json").read_text(encoding="utf-8"))
@@ -123,6 +158,8 @@ def diagnose_failures(run_id: str) -> dict:
     parts = [
         "## Worker source (mend/worker.py)\n" + (ROOT / "mend/worker.py").read_text(encoding="utf-8"),
         "## Worker system prompt (mend/prompts/worker.md)\n" + (ROOT / "mend/prompts/worker.md").read_text(encoding="utf-8"),
+        "## Repair history (round records + Entire checkpoints). Do not propose a fix that repeats one already "
+        "kept, reverted or rejected; build on what is there.\n" + (repair_history() or "(none yet)"),
     ]
     for t in failed + wasteful:
         outcome = "Failed" if not t["passed"] else "Passed but slow"
@@ -191,7 +228,10 @@ def one_round(run_id: str) -> dict:
     if not ok:
         subprocess.run(["git", "checkout", "--", *ALLOWED_FILES], cwd=ROOT)
         print(f"patch rejected: {why}")
-        return {"before": run_id, "kept": False, "reason": why, "diagnosis": diagnosis_file}
+        record = {"before": run_id, "kept": False, "rejected": True, "reason": why,
+                  "title": diagnosis["fix"]["title"], "diagnosis": diagnosis_file}
+        (RUNS / f"{run_id}.rejected.round.json").write_text(json.dumps(record, indent=2), encoding="utf-8")
+        return record
     subprocess.run(["git", "add", *ALLOWED_FILES, diagnosis_file], cwd=ROOT, check=True)
     subprocess.run(["git", "commit", "-q", "-m", f"fix(worker): {diagnosis['fix']['title']}",
                     "-m", f"Proposed by the Mend supervisor from neatlogs traces of run {run_id}; see {diagnosis_file}."],
@@ -206,7 +246,7 @@ def one_round(run_id: str) -> dict:
     record = {"before": run_id, "before_passed": before["passed"], "after": after["run_id"],
               "after_passed": after["passed"], "total": after["total"],
               "before_tokens": tokens(before), "after_tokens": tokens(after), "commit": commit, "kept": kept,
-              "diagnosis": diagnosis_file}
+              "diagnosis": diagnosis_file, "title": diagnosis["fix"]["title"]}
     if kept:  # leave a neatlogs detection behind so this failure is flagged if it ever comes back
         try:
             record["guard"] = detections.create(diagnosis["fix"]["guard"], detections.group_id())

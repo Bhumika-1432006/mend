@@ -1,0 +1,133 @@
+{
+  "run_id": "2026-10-10T11-37-44-heldout",
+  "worker_commit": "1c82e88",
+  "worker_dirty": false,
+  "model": "claude-haiku-4-5",
+  "heldout": true,
+  "tasks": [
+    {
+      "task_id": "H01",
+      "trace_id": "f1df416a0303d2057feeed7a92041034",
+      "turns": 5,
+      "input_tokens": 12003,
+      "output_tokens": 972,
+      "stop": "suite_passed",
+      "summary": "Now let's run the tests to verify the fix:",
+      "passed": true,
+      "duration_s": 18.7,
+      "difficulty": "medium"
+    },
+    {
+      "task_id": "H02",
+      "trace_id": "cf1e64e24b52b71cefe806b3c30fe02c",
+      "turns": 4,
+      "input_tokens": 9882,
+      "output_tokens": 784,
+      "stop": "suite_passed",
+      "summary": "Now let's run the tests again to verify the fix:",
+      "passed": true,
+      "duration_s": 11.0,
+      "difficulty": "easy"
+    },
+    {
+      "task_id": "H03",
+      "trace_id": "692720696b96718cb6e6911823dc0256",
+      "turns": 5,
+      "input_tokens": 12410,
+      "output_tokens": 675,
+      "stop": "suite_passed",
+      "summary": "Now let me run the tests to verify the fix:",
+      "passed": true,
+      "duration_s": 12.2,
+      "difficulty": "medium"
+    },
+    {
+      "task_id": "H04",
+      "trace_id": "f664221d2678e3442255797c302dd522",
+      "turns": 6,
+      "input_tokens": 18905,
+      "output_tokens": 737,
+      "stop": "suite_passed",
+      "summary": "Now let's run the tests again to verify the fix:",
+      "passed": true,
+      "duration_s": 12.0,
+      "difficulty": "easy"
+    },
+    {
+      "task_id": "H05",
+      "trace_id": "bba34302ecb3f12ad6401609f2d2e0f3",
+      "turns": 5,
+      "input_tokens": 12019,
+      "output_tokens": 521,
+      "stop": "suite_passed",
+      "summary": "Now let me run the tests again to verify the fix:",
+      "passed": true,
+      "duration_s": 12.6,
+      "difficulty": "easy"
+    },
+    {
+      "task_id": "H06",
+      "trace_id": "00842a2967516e0f3dde00ca1a3256d1",
+      "turns": 4,
+      "input_tokens": 10038,
+      "output_tokens": 616,
+      "stop": "suite_passed",
+      "summary": "Now let's run the tests to verify the fix works:",
+      "passed": true,
+      "duration_s": 10.2,
+      "difficulty": "easy"
+    },
+    {
+      "task_id": "H07",
+      "trace_id": "c546cef03df2495934d52ac3ce6f5601",
+      "turns": 5,
+      "input_tokens": 19381,
+      "output_tokens": 1190,
+      "stop": "suite_passed",
+      "summary": "Now let's run the full test suite to verify the fix:",
+      "passed": true,
+      "duration_s": 20.4,
+      "difficulty": "medium"
+    },
+    {
+      "task_id": "H08",
+      "trace_id": "9ae58fd7852397f7bd7c2dd1047325ac",
+      "turns": 4,
+      "input_tokens": 15751,
+      "output_tokens": 724,
+      "stop": "suite_passed",
+      "summary": "Now let me run the tests to verify the fix:",
+      "passed": true,
+      "duration_s": 19.8,
+      "difficulty": "hard"
+    },
+    {
+      "task_id": "H09",
+      "trace_id": "e46022a9580f27bcb550706a008e1861",
+      "turns": 5,
+      "input_tokens": 19584,
+      "output_tokens": 924,
+      "stop": "suite_passed",
+      "summary": "Now let's run the tests to verify the fix:",
+      "passed": true,
+      "duration_s": 14.3,
+      "difficulty": "hard"
+    },
+    {
+      "task_id": "H10",
+      "trace_id": "0491d546ddbecd740fa4aca34c210b2c",
+      "turns": 5,
+      "input_tokens": 21684,
+      "output_tokens": 586,
+      "stop": "suite_passed",
+      "summary": "Now let me run the tests to verify the fix:",
+      "passed": true,
+      "duration_s": 9.9,
+      "difficulty": "hard"
+    }
+  ],
+  "passed": 10,
+  "total": 10,
+  "input_tokens": 151657,
+  "output_tokens": 7729
+}

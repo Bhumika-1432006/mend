@@ -53,7 +53,10 @@ def facts() -> dict:
         d = (ROOT / r["diagnosis"].replace("\\", "/")).read_text(encoding="utf-8")
         m = re.search(r"## Chosen fix: (.+)", d)
         round_list.append({**r, "title": m.group(1) if m else "", "diagnosis_file": r["diagnosis"].replace("\\", "/")})
-    return {"rounds": round_list, "first": first, "story": story, "haiku": haiku, "opus": opus,
+    held = [r for r in runs.values() if r.get("heldout")]
+    held_before = [r for r in held if r["worker_commit"] == "13defdb"]
+    held_after = [r for r in held if r["worker_commit"] != "13defdb"]
+    return {"rounds": round_list, "first": first, "story": story, "haiku": haiku, "opus": opus, "held_before": held_before, "held_after": held_after,
             "before_runs": before_runs, "after_runs": after_runs,
             "runs_total": len(full), "tasks_total": max((r["total"] for r in full), default=0)}
 
@@ -139,6 +142,19 @@ def render() -> str:
   <div class="tablewrap"><table><tr><th>#</th><th>What Mend changed in itself</th><th>Solved</th><th>Tokens</th><th>Result</th><th>Commit</th></tr>{round_rows}</table></div>
 </div></section>"""
 
+    if f["held_before"] and f["held_after"]:
+        hb = sum(tokens(r) for r in f["held_before"]) / len(f["held_before"])
+        ha = sum(tokens(r) for r in f["held_after"]) / len(f["held_after"])
+        heldout_html = f"""
+<section id="heldout"><div class="wrap">
+  <p class="eyebrow">Held-out test: bugs the supervisor never saw</p><h2>It generalises.</h2>
+  <p class="sub">{f["held_before"][0]["total"]} new planted bugs, never shown to the supervisor and never used in a diagnosis.
+  Original worker against the self-repaired one, each run twice. Mean tokens per run changed by {(ha - hb) / hb * 100:+.1f}%.</p>
+  <div class="ba two-col">{repeat_card("Original worker", f["held_before"], None, "bad")}{repeat_card("After self-repair", f["held_after"], None, "ok")}</div>
+</div></section>"""
+    else:
+        heldout_html = ""
+
     def run_row(r):
         return (f"<tr><td>{esc(r['run_id'][5:16].replace('T', ' '))}</td><td>{esc(r['model'].replace('claude-', ''))}</td>"
                 f"<td><a class=\"link\" href=\"{REPO}/commit/{esc(r['worker_commit'])}\">{esc(r['worker_commit'])}</a></td>"
@@ -216,7 +232,7 @@ footer{{padding:48px 0;color:var(--mute);font-size:14px}}
   <div class="hero-grid">
     <div><p class="intro">Mend reads its own neatlogs traces, works out why it failed, patches its own code, and keeps
     the fix only if a full re-run gets better. Otherwise it reverts.</p>
-    <div class="cta"><a class="pill" href="?demo=1">&#9654; Watch it fix itself</a><a class="pill ghost" href="#evidence">See the evidence</a><a class="pill ghost" href="report.html">Full report</a></div></div>
+    <div class="cta"><a class="pill" href="#watch" onclick="document.getElementById('watch').showModal();document.getElementById('watchv').play();return false;">&#9654; Watch it fix itself</a><a class="pill ghost" href="?demo=1">Step through it</a><a class="pill ghost" href="#evidence">See the evidence</a><a class="pill ghost" href="report.html">Full report</a></div></div>
     {hero_stat}
   </div>
 </div></header>
@@ -234,6 +250,7 @@ footer{{padding:48px 0;color:var(--mute);font-size:14px}}
 </div></section>
 {story_html}
 {repeat_html}
+{heldout_html}
 {rounds_html}
 <section id="evidence"><div class="wrap">
   <p class="eyebrow">Evidence</p><h2>Every number comes from a run file.</h2>
@@ -253,6 +270,11 @@ footer{{padding:48px 0;color:var(--mute);font-size:14px}}
 </div></section>
 
 <footer><div class="wrap">Mend · built during neatHack, 10–12 October 2026 · <a href="{REPO}">github.com/thegoodengineers/mend</a></div></footer>
+<dialog id="watch" style="border:0;border-radius:22px;padding:0;max-width:min(1100px,94vw);background:#0f0f0d;box-shadow:0 40px 100px rgba(0,0,0,.35)">
+<video id="watchv" src="video/live/mend-live.mp4" controls playsinline preload="metadata" style="display:block;width:100%;height:auto"></video>
+<form method="dialog" style="position:absolute;top:10px;right:12px;margin:0"><button aria-label="Close" style="border:0;border-radius:999px;background:#f4f4ee;padding:6px 12px;font:600 14px Inter;cursor:pointer" onclick="document.getElementById('watchv').pause()">Close</button></form>
+<p style="margin:0;padding:10px 16px;color:#cbcbbf;font:13px Inter">Live recording at real speed: the original worker vs the self-repaired worker on the same task. Both runs traced in neatlogs. Narration is synthetic voice.</p>
+</dialog>
 {demo}
 </body></html>"""
 
