@@ -115,6 +115,14 @@ footer{padding:48px 0;color:var(--mute);font-size:14px}
   <div class="ba two-col"><div class="card bad"><span class="k">Original worker · 2 runs</span><span class="big">9, 9<em> / 10</em></span><span class="sub">mean 388,977 tokens per run</span></div><div class="card ok"><span class="k">After self-repair · 2 runs</span><span class="big">10, 10<em> / 10</em></span><span class="sub">mean 156,587 tokens per run</span></div></div>
 </div></section>
 
+<section id="realworld"><div class="wrap">
+  <p class="eyebrow">Real-world test: an open-source library it never saw</p><h2>Beyond our sandbox.</h2>
+  <p class="sub">8 bugs planted in <a class="link" href="https://github.com/thegoodengineers/mend/tree/main/realworld/inflection">inflection</a>
+  (MIT, unmodified, 455 of its own tests). Never shown to the supervisor. Original worker against the self-repaired one, each run twice.
+  Mean tokens per run changed by -81.6%.</p>
+  <div class="ba two-col"><div class="card bad"><span class="k">Original worker · 2 runs</span><span class="big">2, 3<em> / 8</em></span><span class="sub">mean 1,462,537 tokens per run</span></div><div class="card ok"><span class="k">After self-repair · 2 runs</span><span class="big">8, 8<em> / 8</em></span><span class="sub">mean 268,926 tokens per run</span></div></div>
+</div></section>
+
 <section id="rounds"><div class="wrap">
   <p class="eyebrow">Every self-repair round</p><h2>Each fix was diagnosed from traces and written by the agent.</h2>
   <p class="sub">A round keeps its patch only if more tasks pass, or the same tasks pass with at least 15% fewer tokens. Each fix is a commit written by Claude Code. From round 4 the supervisor runs in a clean clone, and Entire links each fix to the session that wrote it.</p>

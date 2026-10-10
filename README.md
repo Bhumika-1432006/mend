@@ -21,7 +21,7 @@ If a number has no file behind it, it is not here.
 
 | neatHack evidence item | Where to check it |
 |---|---|
-| The agent improved (before/after with numbers) | [rounds table](#self-repair-rounds-all-five-kept), [3-vs-3 repeat runs](#repeatable-not-lucky-same-28-tasks-3-runs-each), [held-out test](#held-out-test-10-bugs-the-supervisor-never-saw); [live recording](video/live/mend-live.mp4) |
+| The agent improved (before/after with numbers) | [rounds table](#self-repair-rounds-all-five-kept), [3-vs-3 repeat runs](#repeatable-not-lucky-same-28-tasks-3-runs-each), [held-out test](#held-out-test-10-bugs-the-supervisor-never-saw), [real-world library](#real-world-test-bugs-in-an-open-source-library-it-never-saw); [live recording](video/live/mend-live.mp4) |
 | You used neatlogs | [traced call](evidence/t02-first-traced-call.txt), [trace read back over MCP](evidence/t04-trace-readback.txt), [task 23 before](evidence/task23-before-trace.json) / [after](evidence/task23-after-trace.json) traces; 3 regression-guard detections ([`mend/detections.py`](mend/detections.py)) |
 | You used Entire | [round 4 checkpoint](https://entire.io/gh/thegoodengineers/mend/commit/7e2148e201fdaa9b2b3f921d1f2651950f537205) (the supervisor's own Claude Code session); the supervisor reads past checkpoints back as repair memory |
 | You used cfo.ai | [business plan](docs/business-plan.md) and its [cfo.ai export](docs/business-plan-cfo-ai.xlsx) |
@@ -100,6 +100,22 @@ supervisor (it refuses held-out runs) and no diagnosis or patch is based on them
 
 The original worker's held-out runs used `mend/worker.py` and `mend/prompts/worker.md` from
 `13defdb` on the current harness (noted in each run file as `worker_version`).
+
+### Real-world test: bugs in an open-source library it never saw
+
+[`realworld/inflection`](realworld/inflection) is the open-source `inflection` library (0.5.1, MIT,
+unmodified, 455 of its own tests). [`tasks/realworld.json`](tasks/realworld.json) plants 8 bugs that
+its own tests catch (2 more were dropped because the library's tests miss them). The supervisor
+never sees these runs; the harness swaps the library name in the worker's prompt identically for
+both workers.
+
+| Worker | Runs | Solved | Mean tokens per run |
+|---|---|---|---|
+| Original (`13defdb`) | [12-10-47](runs/2026-10-10T12-10-47-realworld-v0.json), [12-23-39](runs/2026-10-10T12-23-39-realworld-v0.json) | 2, 3 of 8 | 1,462,537 |
+| After 5 self-repair rounds | [12-21-13](runs/2026-10-10T12-21-13-realworld.json), [12-34-51](runs/2026-10-10T12-34-51-realworld.json) | 8, 8 of 8 | 268,926 (−81.6%) |
+
+The original worker's failures repeat the flaw Mend found in itself: on the 426-line module it
+rewrote the whole file, broke unrelated tests and ran out of turns.
 
 ### Live recording
 

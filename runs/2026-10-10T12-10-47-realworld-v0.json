@@ -1,0 +1,111 @@
+{
+  "run_id": "2026-10-10T12-10-47-realworld-v0",
+  "worker_commit": "13defdb",
+  "worker_dirty": true,
+  "model": "claude-haiku-4-5",
+  "heldout": true,
+  "realworld": true,
+  "tasks": [
+    {
+      "task_id": "R01",
+      "trace_id": "1e1e2f8419161c038159e0ede298161a",
+      "turns": 15,
+      "input_tokens": 211200,
+      "output_tokens": 5472,
+      "stop": "max_turns",
+      "summary": "",
+      "passed": false,
+      "duration_s": 72.5,
+      "difficulty": "medium"
+    },
+    {
+      "task_id": "R02",
+      "trace_id": "b312fb6ee6395e5f387823f2cdebed7f",
+      "turns": 15,
+      "input_tokens": 221114,
+      "output_tokens": 9541,
+      "stop": "max_turns",
+      "summary": "",
+      "passed": false,
+      "duration_s": 102.0,
+      "difficulty": "easy"
+    },
+    {
+      "task_id": "R03",
+      "trace_id": "494e83a1685b3df1c8786dc9840a112d",
+      "turns": 15,
+      "input_tokens": 180799,
+      "output_tokens": 9954,
+      "stop": "max_turns",
+      "summary": "",
+      "passed": false,
+      "duration_s": 98.4,
+      "difficulty": "easy"
+    },
+    {
+      "task_id": "R04",
+      "trace_id": "5c5c24fb78bf22e3c9dd9b6915b6e831",
+      "turns": 15,
+      "input_tokens": 188672,
+      "output_tokens": 5932,
+      "stop": "max_turns",
+      "summary": "",
+      "passed": false,
+      "duration_s": 67.4,
+      "difficulty": "medium"
+    },
+    {
+      "task_id": "R06",
+      "trace_id": "f5bc6c2645b0ab449e8b8eb9ebe30087",
+      "turns": 15,
+      "input_tokens": 176388,
+      "output_tokens": 5507,
+      "stop": "max_turns",
+      "summary": "",
+      "passed": false,
+      "duration_s": 66.4,
+      "difficulty": "medium"
+    },
+    {
+      "task_id": "R07",
+      "trace_id": "114cb3996fc904f626c6f936f1e21388",
+      "turns": 15,
+      "input_tokens": 163733,
+      "output_tokens": 5481,
+      "stop": "max_turns",
+      "summary": "",
+      "passed": true,
+      "duration_s": 75.8,
+      "difficulty": "hard"
+    },
+    {
+      "task_id": "R09",
+      "trace_id": "7efb4b797138199271417ae44f7e7faa",
+      "turns": 15,
+      "input_tokens": 162770,
+      "output_tokens": 6580,
+      "stop": "max_turns",
+      "summary": "",
+      "passed": true,
+      "duration_s": 76.6,
+      "difficulty": "hard"
+    },
+    {
+      "task_id": "R10",
+      "trace_id": "f794a1388126004d9f62eb7677f6c228",
+      "turns": 15,
+      "input_tokens": 185641,
+      "output_tokens": 5582,
+      "stop": "max_turns",
+      "summary": "",
+      "passed": false,
+      "duration_s": 64.4,
+      "difficulty": "hard"
+    }
+  ],
+  "passed": 2,
+  "total": 8,
+  "input_tokens": 1490317,
+  "output_tokens": 54049,
+  "worker_version": "13defdb (original worker: mend/worker.py and mend/prompts/worker.md checked out from 13defdb onto the current harness)"
+}
