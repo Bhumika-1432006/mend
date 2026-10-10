@@ -200,6 +200,26 @@ Not done / blocked:
   restarted afterwards.
 - Supervisor can now run several rounds unattended (`--rounds N`, stops at the first revert).
 
+### 2026-10-10 ~17:30 IST - two more self-repair rounds, repeat runs, new site, transcript clean-up
+- Baseline repeats of the original worker (commit 13defdb): 26/28 and 27/28 (copied in as
+  `*-v0.json`). Original worker over 3 runs: 27, 26, 27 of 28, mean 946,860 tokens; task 23
+  failed in all 3. Worker after round 1, 3 runs: 28, 28, 28, mean 875,953 tokens (-7.5%);
+  task 23 passed in all 3.
+- New 29-task run `10-17-27`: 28/29 (task 28 hit max turns). Then `--rounds 2`:
+  - Round 2 kept (`f9dae91`): edit_file shows the current text of a near match on a miss;
+    clearer read_file prefix. 28 -> 29/29, tokens 1,005,203 -> 894,839.
+  - Round 3 kept (`931ea51`): a test-first workflow and stop-on-green rule in the worker
+    prompt. 29 -> 29/29, tokens 894,839 -> 618,906 (-30.8%). Note: its "if the tests hang" rule
+    was learned from task 29. Single runs; to be repeated before quoting a stable figure.
+- Website redesigned as a light landing page generated from run files (`mend/site.py` ->
+  `index.html`); the data table stays at `report.html`. Live on GitHub Pages.
+- Security clean-up: Entire had attached this lead's interactive chat transcript to checkpoint
+  refs pushed to the public repo. A scan found no API keys or passwords (Entire redacted them),
+  but the AWS sandbox account ID and IAM username were present. The checkpoint refs were deleted
+  from GitHub (2 remain for the builder to delete), and Entire is disabled for this working copy
+  (`entire disable --local`). From now on, checkpoints come from a separate clean clone that runs
+  the supervisor, so they contain only the supervisor's own Claude Code session.
+
 ## Demo
 pending
 

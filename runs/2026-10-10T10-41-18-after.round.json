@@ -1,0 +1,12 @@
+{
+  "before": "2026-10-10T10-30-26-after",
+  "before_passed": 29,
+  "after": "2026-10-10T10-41-18-after",
+  "after_passed": 29,
+  "total": 29,
+  "before_tokens": 894839,
+  "after_tokens": 618906,
+  "commit": "931ea51",
+  "kept": true,
+  "diagnosis": "runs\\2026-10-10T10-30-26-after.diagnosis.md"
+}
