@@ -10,7 +10,7 @@ No task starts before the hackathon start time.
 - [x] **T02 (A) neatlogs spike.** (10 Oct: `scripts/trace_check.py`; first call failed on Anthropic credit; after a new key, trace `f9d77cd0...` SUCCESS, 95 tokens, $0.0019.) Install the SDK per docs.neatlogs.com/sdk/python, init once at
   the entry point with a workflow name, one Claude call traced. Done: the trace is visible in
   the neatlogs dashboard (screenshot saved to `evidence/`).
-- [ ] **T03 (B) Entire spike.** `entire enable` in the repo; make one change with Claude Code;
+- [x] **T03 (B) Entire spike.** (10 Oct, lead: headless `claude -p` sessions ARE captured - checkpoint `01M4JJDPSDK3JP5AHG5BKN2JSM` on commit e8a6baf.) `entire enable` in the repo; make one change with Claude Code;
   commit. Done: an Entire checkpoint with the session is visible (`entire` CLI or web), output
   saved to `evidence/`.
 - [x] **T04 (A) MCP read spike.** (10 Oct: `mend/traces.py`; `get_trace_context(created_after=...)` works, `search_traces` returned nothing for fresh traces.) From a script or Claude Code, call the neatlogs MCP
@@ -18,23 +18,23 @@ No task starts before the hackathon start time.
 - [x] **T05 (B) Sandbox repo, first 5 bugs.** (10 Oct: done together with T08 by the lead's agent; tasks live in one file, `tasks/tasks.json`.) `sandbox/` small Python project with pytest; each bug
   is a `tasks/NN.json` (bug report text + a patch that introduces the bug). Done: for each task,
   applying the bug makes exactly its tests fail; reverting makes them pass (`pytest` script).
-- [ ] **T06 (A) Worker agent.** `mend/worker.py`: Claude + tools `list_files`, `read_file`,
+- [x] **T06 (A) Worker agent.** `mend/worker.py`: Claude + tools `list_files`, `read_file`,
   `write_file`, `run_tests`; works in a temp copy of the sandbox with one bug applied.
   Done: solves at least 1 of the 5 tasks end to end; full run traced in neatlogs.
-- [ ] **T07 (A) Suite runner.** `python -m mend.suite` runs all tasks, writes `runs/<id>.json`
+- [x] **T07 (A) Suite runner.** `python -m mend.suite` runs all tasks, writes `runs/<id>.json`
   (task, pass/fail, trace id, duration, tokens if available). Done: a run file exists for a full suite.
 - [x] **T08 (B) 20 bugs.** (10 Oct: 20 tasks, 5 easy / 12 medium / 3 hard; `python -m mend.tasks --check` confirms all 20 break the tests and the correct sandbox passes 29/29.) Extend T05 to 20 tasks of mixed difficulty. Done: same check as T05, 20/20.
-- [ ] **T09 (B) Baseline.** Run the suite 3 times on the unmodified worker. Done: the three pass
+- [x] **T09 (B) Baseline.** (Opus 20/20; Haiku 27/28; repeats in `runs/`.) Run the suite 3 times on the unmodified worker. Done: the three pass
   counts are recorded in `hackathon.md` with run ids.
-- [ ] **T10 (A) Supervisor: diagnose.** `mend/supervisor.py` takes a run file, pulls each failed
+- [x] **T10 (A) Supervisor: diagnose.** `mend/supervisor.py` takes a run file, pulls each failed
   task's trace over MCP, outputs a diagnosis (failing step, cause, proposed change) to
   `runs/<id>.diagnosis.md`. Done: a diagnosis that names a real span for at least one failure.
-- [ ] **T11 (A) Supervisor: patch, re-run, keep or revert.** Apply the proposed change to the
+- [x] **T11 (A) Supervisor: patch, re-run, keep or revert.** (Round 1 kept: 27 -> 28 of 28.) Apply the proposed change to the
   worker via headless Claude Code (`claude -p`), commit, re-run the suite, compare pass counts,
   `git revert` if not better. Done: one full round logged, with both run ids and the commit.
 - [ ] **T12 (B, or D if free) cfo.ai business plan.** Pricing, costs (model + infra per run), revenue and
   runway scenarios for Mend. Done: plan exported to `docs/business-plan.*` and linked in README.
-- [ ] **T13 (C) Report.** `python -m mend.report` turns `runs/*.json` into `report.html`:
+- [x] **T13 (C) Report.** (v1 by the lead; polish in issue #1.) `python -m mend.report` turns `runs/*.json` into `report.html`:
   pass counts per round, per-task status, links to neatlogs traces and commits. Done: opens
   in a browser, no server.
 - [ ] **T14 (B) Build in public.** One #neatHack post per milestone (spikes, first solve,
@@ -46,7 +46,7 @@ No task starts before the hackathon start time.
   Done: a teammate who didn't build it can follow each link.
 
 ## Should
-- [ ] **T17 (A) Recovery.** Worker retries a failed tool call (e.g. test timeout) and the trace
+- [x] **T17 (A) Recovery.** (10 Oct: task 29 hangs the suite; the worker's run_tests timed out after 60 s, then it found and fixed the loop. `evidence/t17-recovery-from-timeout.txt`.) Worker retries a failed tool call (e.g. test timeout) and the trace
   shows what it did next. Done: one traced run with a failed action and the recovery.
 - [ ] **T18 (C) Demo mode.** `report.html?demo=1` steps through one round automatically for the
   video capture. Done: plays end to end unattended.

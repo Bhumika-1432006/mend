@@ -1,0 +1,24 @@
+{
+  "run_id": "2026-10-10T09-54-37",
+  "worker_commit": "af8d432",
+  "worker_dirty": false,
+  "model": "claude-haiku-4-5",
+  "tasks": [
+    {
+      "task_id": "29",
+      "trace_id": "52a1b42dc418e746b87ac7bb33630d1f",
+      "turns": 8,
+      "input_tokens": 33380,
+      "output_tokens": 1201,
+      "stop": "end_turn",
+      "summary": "The fix is complete and verified. The infinite loop in the `add_business_days` function was caused by two bugs:\n\n1. Line 9 was adding 0 days to `current` instead of 1 day\n2. Line 11 (inside the `if` block) was not incrementing the `added` counter\n\nThese two bugs combined caused the while loop to run infinitely because `added` would never reach `days`.\n\n**Summary:** Fixed the infinite loop in `invoicer/dates.py` by correcting the `add_business_days` function to increment the date by 1 day each iteration and increment the counter when a business day is encountered.",
+      "passed": true,
+      "duration_s": 102.5,
+      "difficulty": "hard"
+    }
+  ],
+  "passed": 1,
+  "total": 1,
+  "input_tokens": 33380,
+  "output_tokens": 1201
+}

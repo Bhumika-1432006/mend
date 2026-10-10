@@ -1,0 +1,17 @@
+# Recovery from a failed action, 10 Oct 2026 (task 29: the test suite hangs).
+# python scripts/show_tools.py 2026-10-10T09-54-37 29   (tool spans read back from neatlogs over MCP)
+# The first run_tests timed out after 60 s; the worker then located the infinite loop and fixed it.
+task 29: passed=True turns=8 trace=52a1b42dc418e746b87ac7bb33630d1f
+list_files SUCCESS    0.0s  {}  => conftest.py invoicer/__init__.py invoicer/csv_import.py invoicer/dates.py invoicer/discounts.py invoicer/invoi
+run_tests  SUCCESS   60.3s  {"pattern": ""}  => FAILED pytest timed out after 60s
+read_file  SUCCESS    0.0s  {"path": "conftest.py", "start": 1, "lines": 200}  => ""
+read_file  SUCCESS    0.0s  {"path": "invoicer/__init__.py", "start": 1, "lines": 200}  => 1: """A small invoicing library. Mend's worker agent fixes bugs planted in it."""
+read_file  SUCCESS    0.0s  {"path": "invoicer/dates.py", "start": 1, "lines": 200}  => 1: from datetime import date, timedelta 2:  3:  4: def add_business_days(start: date, days: int) -> date: 5:  
+read_file  SUCCESS    0.0s  {"path": "invoicer/money.py", "start": 1, "lines": 200}  => 1: from decimal import ROUND_HALF_UP, Decimal 2:  3: CENT = Decimal("0.01") 4:  5:  6: def to_money(value) -> 
+read_file  SUCCESS    0.0s  {"path": "invoicer/ledger.py", "start": 1, "lines": 200}  => 1: """Customer ledger: invoices, payments, credit notes, allocation, aging, interest, statements. 2:  3: This 
+read_file  SUCCESS    0.0s  {"path": "invoicer/tax.py", "start": 1, "lines": 200}  => 1: from decimal import Decimal 2:  3: from .money import to_money 4:  5: RATES = {"standard": Decimal("0.18"),
+read_file  SUCCESS    0.0s  {"path": "invoicer/discounts.py", "start": 1, "lines": 200}  => 1: from decimal import Decimal 2:  3: from .money import to_money 4:  5: # (minimum subtotal, percent off), ch
+read_file  SUCCESS    0.1s  {"path": "invoicer/invoice.py", "start": 1, "lines": 200}  => 1: from dataclasses import dataclass, field 2: from decimal import Decimal 3:  4: from .discounts import apply
+edit_file  SUCCESS    0.0s  {"path": "invoicer/dates.py", "old": "def add_business_days(start: date, days: int) -> dat  => edited invoicer/dates.py: replaced 9 line(s) with 9 line(s)
+run_tests  SUCCESS    2.3s  {"pattern": ""}  => PASSED .....................................                                    [100%] 37 passed in 0.29s 
+read_file  SUCCESS    0.0s  {"path": "invoicer/dates.py", "start": 1, "lines": 200}  => 1: from datetime import date, timedelta 2:  3:  4: def add_business_days(start: date, days: int) -> date: 5:  
