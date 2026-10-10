@@ -52,6 +52,8 @@ No task starts before the hackathon start time.
   video capture. Done: plays end to end unattended.
 - [ ] **T19 (A) Multiple rounds.** Supervisor runs N rounds unattended, stops when no gain.
 
+- [x] **T22 (A) Regression guards in neatlogs.** (10 Oct: `mend/detections.py`; 3 guards created from real failures - timeouts 3, edit misses 5, turn limit 5 matching spans; each kept round now leaves a new guard.)
+
 ## Nice
 - [ ] **T20** Two worker models compared on the same suite.
 - [ ] **T21** Supervisor posts its own round summary as a draft (not auto-published).

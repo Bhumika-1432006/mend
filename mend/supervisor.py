@@ -19,6 +19,7 @@ import neatlogs
 
 from mend.suite import RUNS, git, run_suite
 from mend.tasks import ROOT, load_tasks
+from mend import detections
 from mend.traces import get_trace, span_lines
 
 MODEL = os.environ.get("MEND_MODEL", "claude-opus-5-5")
@@ -54,8 +55,21 @@ DIAGNOSIS_SCHEMA = {
                 "target_file": {"type": "string", "enum": sorted(ALLOWED_FILES)},
                 "instructions": {"type": "string", "description": "exact change to make, for a coding agent"},
                 "why_general": {"type": "string"},
+                "guard": {
+                    "type": "object",
+                    "description": "A neatlogs regex detection that flags this failure in future traces: a regex on the "
+                                   "OUTPUT text of one span, matching the visible symptom (e.g. an error message).",
+                    "properties": {
+                        "display_name": {"type": "string", "description": "starts with 'Mend: '"},
+                        "span_name": {"type": "string", "enum": ["list_files", "read_file", "edit_file", "write_file", "run_tests", "solve_task"]},
+                        "output_pattern": {"type": "string"},
+                        "description": {"type": "string"},
+                    },
+                    "required": ["display_name", "span_name", "output_pattern", "description"],
+                    "additionalProperties": False,
+                },
             },
-            "required": ["title", "target_file", "instructions", "why_general"],
+            "required": ["title", "target_file", "instructions", "why_general", "guard"],
             "additionalProperties": False,
         },
     },
@@ -191,6 +205,11 @@ def one_round(run_id: str) -> dict:
               "after_passed": after["passed"], "total": after["total"],
               "before_tokens": tokens(before), "after_tokens": tokens(after), "commit": commit, "kept": kept,
               "diagnosis": diagnosis_file}
+    if kept:  # leave a neatlogs detection behind so this failure is flagged if it ever comes back
+        try:
+            record["guard"] = detections.create(diagnosis["fix"]["guard"], detections.group_id())
+        except Exception as exc:  # a guard is a bonus; never lose the round over it
+            record["guard"] = {"status": f"error: {exc}"[:300]}
     (RUNS / f"{after['run_id']}.round.json").write_text(json.dumps(record, indent=2), encoding="utf-8")
     print(f"round: {before['passed']} -> {after['passed']} of {after['total']}, tokens {tokens(before)} -> {tokens(after)}; "
           f"{'KEPT' if kept else 'REVERTED'} {commit}")
