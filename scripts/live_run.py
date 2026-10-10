@@ -60,7 +60,7 @@ def wrap(name, fn):
             emit("tool_end", tool=name, out=str(out).split("\n")[0][:120], ok=True)
             return out
         except Exception as exc:
-            emit("tool_end", tool=name, out=f"Error: {exc}"[:120], ok=False)
+            emit("tool_end", tool=name, out=("Error: " + str(exc)).replace(str(work), "<sandbox copy>")[:120], ok=False)
             raise
     return run
 
