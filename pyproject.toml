@@ -1,0 +1,15 @@
+[project]
+name = "mend"
+version = "0.1.0"
+description = "An agent that reads its own neatlogs traces, fixes its own code, and proves the fix."
+requires-python = ">=3.10,<3.14"
+dependencies = ["neatlogs[anthropic]", "anthropic", "mcp"]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.setuptools]
+packages = ["mend"]

@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.env.*
+.pytest_cache/
+video/vo/
+video/renders/
+video/build/
+*.egg-info/
