@@ -155,6 +155,25 @@ Not done / blocked:
 - First #neatHack post on X: https://x.com/theintrodev/status/2108851736765141188
 - All three teammates have write (or admin) access to thegoodengineers/mend.
 
+### 2026-10-10 15:15 IST - first self-repair round: KEPT (27 -> 28 of 28)
+- `python -m mend.supervisor 2026-10-10T09-15-17` read the traces of failed task 23 and the
+  three slowest passing runs (24, 22, 06) from neatlogs over MCP.
+- Diagnosis (`runs/2026-10-10T09-15-17.diagnosis.md`): the worker read only the first 200 lines
+  of the 233-line ledger.py, then used write_file (whole-file replace) for a one-word change,
+  silently deleting everything after line 200. Task 23 failed at max turns; task 24 passed
+  only on turn 15 after repairing the truncation.
+- Fix (commit `e8a6baf`, applied by headless Claude Code): new `edit_file` tool (exact string
+  replace), write_file described as whole-file only, and partial reads now say how many lines
+  remain. **Entire captured that headless session as checkpoint `01M4JJDPSDK3JP5AHG5BKN2JSM`**
+  linked to the commit - this answers the open question from the runbook.
+- Re-run `2026-10-10T09-31-07-after`: **28/28** (was 27/28); tokens 933,181 -> 851,463 (-8.8%,
+  so the 15% token rule did not apply; it was kept for the extra pass). Task 23: fail at 15
+  turns -> pass in 8 (trace `78712d5b...`). Task 24: 15 -> 11 turns.
+- Honest caveat: one run each side, so some of this is noise. Task 19 got worse (10 -> 15
+  turns, passed on its last turn). Next: repeat runs to measure variance before claiming a
+  stable improvement.
+- Entire CLI logged in (github:Chirag6722).
+
 ## Demo
 pending
 
