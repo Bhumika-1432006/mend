@@ -68,7 +68,7 @@ Prepared 9 Oct 2026 from the tools' public docs (planning, no code). "Verified" 
 ## 2. First 3 hours (exact steps, after the start time)
 
 Lead (A):
-1. `gh repo create <org>/mend --public --clone`; copy `docs/`, `video/`, `hackathon.md`,
+1. Done 10 Oct: repo is https://github.com/thegoodengineers/mend (moved from a personal account); copy `docs/`, `video/`, `hackathon.md`,
    `.claude/skills/` in; first commit "docs: plan written before the event" (say so honestly).
 2. Python venv; `pip install -U "neatlogs[anthropic]" anthropic pytest mcp`.
 3. T02: a 10-line script: init -> wrap -> one Claude call inside a WORKFLOW span -> flush.

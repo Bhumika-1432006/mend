@@ -103,6 +103,20 @@ Not done / blocked:
 - Security note: a teammate-facing PDF made outside this project contained AWS sandbox login
   details; advised the builder to request a new password and keep it out of the repo.
 
+### 2026-10-10 ~13:50 IST - repo, tracing check, trace readback
+- Public repo created and then transferred to the team org at the builder's request:
+  https://github.com/thegoodengineers/mend (history and commit dates kept).
+- T02: `scripts/trace_check.py` sends one Claude call under a WORKFLOW span. The trace reached
+  neatlogs, but the Claude call failed: **Anthropic API "credit balance is too low"**. Blocker
+  until the Anthropic account has credit.
+- T04: `mend/traces.py` reads our own trace back over the neatlogs MCP server: trace
+  `74deb82a...` status=error, workflow `mend-trace-check`, 2 spans (workflow root + LLM span,
+  both ERROR). Evidence: `evidence/t04-trace-readback.txt`.
+- Finding: `search_traces` returned 0 results for every query on fresh traces;
+  `get_trace_context(created_after=<timestamp>)` works, so runs are located by start time.
+- The saved key belongs to the neatlogs project "chotu's project" (checked with MCP `whoami`).
+- Tests: `pytest` 2 passed.
+
 ## Demo
 pending
 
