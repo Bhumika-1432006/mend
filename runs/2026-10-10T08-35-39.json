@@ -1,0 +1,24 @@
+{
+  "run_id": "2026-10-10T08-35-39",
+  "worker_commit": "b735428",
+  "worker_dirty": true,
+  "model": "claude-opus-5-5",
+  "tasks": [
+    {
+      "task_id": "01",
+      "trace_id": "0538d30de3b4df60206f96f3e966a0e4",
+      "turns": 4,
+      "input_tokens": 6623,
+      "output_tokens": 666,
+      "stop": "end_turn",
+      "summary": "I fixed `add_business_days` in `invoicer/dates.py` so it no longer counts Saturday as a business day: the weekday check `<= 5` (which included Saturday) is now `< 5` (Monday to Friday only), and all 29 tests pass.",
+      "passed": true,
+      "duration_s": 15.9,
+      "difficulty": "easy"
+    }
+  ],
+  "passed": 1,
+  "total": 1,
+  "input_tokens": 6623,
+  "output_tokens": 666
+}

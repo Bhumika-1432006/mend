@@ -10,6 +10,7 @@ import asyncio
 import json
 import os
 import sys
+import time
 
 from mcp import ClientSession
 from mcp.client.streamable_http import streamable_http_client
@@ -32,10 +33,20 @@ async def _call(tool: str, args: dict) -> dict:
     return json.loads(result.content[0].text)
 
 
-def get_trace(trace_id: str | None = None, created_after: str | None = None) -> dict:
-    """A trace by id, or the latest trace created after an ISO timestamp."""
+def get_trace(trace_id: str | None = None, created_after: str | None = None, wait_s: int = 90) -> dict:
+    """A trace by id, or the latest trace created after an ISO timestamp.
+
+    A fresh trace answers "not found" for a while after the run (seen on 10 Oct), so retry.
+    """
     args = {"trace_id": trace_id} if trace_id else {"created_after": created_after}
-    return asyncio.run(_call("get_trace_context", args))
+    deadline = time.time() + wait_s
+    while True:
+        try:
+            return asyncio.run(_call("get_trace_context", args))
+        except RuntimeError as exc:
+            if "not_found" not in str(exc) or time.time() > deadline:
+                raise
+            time.sleep(10)
 
 
 def span_lines(trace: dict) -> list[str]:
