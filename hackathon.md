@@ -268,6 +268,19 @@ Not done / blocked:
   Claude Code session that writes each self-fix locates code via Entire's graph.
 - Second Scout pass running (changes since the 17:30 scan).
 
+### 2026-10-10 ~18:50 IST - real-world result, neatroots second opinion, Scout pass 2
+- Real-world held-out result (inflection 0.5.1, 8 bugs, never seen by the supervisor): original
+  worker 2/8 and 3/8 (mean 1,462,537 tokens), worker after 5 rounds 8/8 and 8/8 (mean 268,926,
+  -81.6%). Checked a failed original trace first: whole-file rewrites of the 426-line module.
+  `mend.verify` caught a rounding typo in the README (268,927 vs 268,926) before it was committed.
+- neatroots 0.2.6 (neatlogs' local checker) installed in WSL. Both workers ran 4 tasks against
+  it (original 2/4, repaired 4/4). Its built-in rules flagged nothing in either; a custom count
+  rule on whole-file write_file spans flags all 4 original runs and none of the repaired ones
+  (`evidence/neatroots-check.md`).
+- Scout pass 2 (17:51-18:10 IST): 3 rivals now have demo videos; firstrun strongest on Entire
+  (Trails, Brain, upstream PRs); new strong entry nightwatch-agent; neatlogs released neatroots.
+- Post drafts now include a LinkedIn version (#9). Still 1 post published.
+
 ## Demo
 pending
 
