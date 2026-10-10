@@ -280,6 +280,17 @@ footer{{padding:48px 0;color:var(--mute);font-size:14px}}
   <p><a class="link" href="report.html">Open the full report: every task, every run, every diagnosis →</a></p>
 </div></section>
 
+<section id="verify"><div class="wrap">
+  <p class="eyebrow">Check it yourself</p><h2>Two minutes, no API keys.</h2>
+  <p class="sub">Every number on this page is recomputed from the raw run files. The same checks run on every push in
+  <a class="link" href="{REPO}/actions">GitHub Actions</a>.</p>
+  <div class="card" style="margin-top:24px;overflow-x:auto"><pre style="margin:0;font:14px/1.7 'JetBrains Mono',monospace">git clone {REPO}
+cd mend && python -m venv .venv && .venv/bin/pip install -e ".[dev]"
+python -m mend.verify        # recompute every README number from runs/*.json
+python -m mend.tasks --check # all 47 planted bugs break their test suites; correct code passes
+pytest -q                    # unit tests</pre></div>
+</div></section>
+
 <section id="tools"><div class="wrap">
   <p class="eyebrow">Built with</p><h2>neatlogs, Entire and cfo.ai, each doing real work.</h2>
   <div class="tools">
