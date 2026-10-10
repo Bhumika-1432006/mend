@@ -9,7 +9,7 @@ https://thegoodengineers.github.io/mend/?demo=1
 
 ## 2. Five rounds, no human
 5 self-repair rounds, no human in the loop. each one: read traces, diagnose, patch itself, re-run all 29 tasks, keep only if it got better. tokens per suite run: 1,005,203 -> 347,960 #neatHack
-https://github.com/thegoodengineers/mend#self-repair-rounds-all-five-kept
+https://github.com/thegoodengineers/mend#self-repair-rounds-five-kept-one-reverted
 
 ## 3. Held-out test (the "is it overfitting?" answer)
 does self-repair just overfit? we ran 10 bugs it never saw. original worker: 9/10 twice. after self-repair: 10/10 twice, 60% fewer tokens #neatHack
@@ -28,6 +28,10 @@ https://entire.io/gh/thegoodengineers/mend/commit/7e2148e201fdaa9b2b3f921d1f2651
 ## 7. Every number is checked
 every number in our README is recomputed from raw run files on every push. edit one by hand and CI goes red #neatHack
 https://github.com/thegoodengineers/mend/actions
+
+## 7b. The gate said no
+our agent proposed a change to itself, tested it on all 29 tasks, saw it cost 3.8% more tokens, and reverted it. no human involved. that's the point: it only keeps what the numbers prove #neatHack
+https://github.com/thegoodengineers/mend#self-repair-rounds-five-kept-one-reverted
 
 ## 8. Submission (Monday 7:00-11:55 PM IST, quote the official neatlogs post)
 Team The Good Engineers - Mend: an agent that fixes itself and proves it. repo: https://github.com/thegoodengineers/mend demo: https://thegoodengineers.github.io/mend/ #neatHack

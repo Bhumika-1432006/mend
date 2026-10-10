@@ -281,6 +281,15 @@ Not done / blocked:
   (Trails, Brain, upstream PRs); new strong entry nightwatch-agent; neatlogs released neatroots.
 - Post drafts now include a LinkedIn version (#9). Still 1 post published.
 
+### 2026-10-10 ~19:05 IST - round 6 reverted by the gate; a supervisor bug fixed
+- Round 6 (clean runner): proposed letting edit_file take a list of edits; re-run 29/29 but tokens
+  347,960 -> 361,174 (+3.8%), so the supervisor reverted it automatically (`49c99e2` reverted by
+  `b5e788d`). First public "no" from the gate.
+- Bug found: `git revert` also deleted the round's diagnosis (committed with the patch). Restored it
+  from `49c99e2`; the supervisor now re-adds the diagnosis after every revert.
+- First measured diagnosis cost: Claude Opus 5.5, 20,954 in / 2,394 out tokens, ~$0.13. A full repair
+  round is now ~$0.57 (diagnosis + $0.44 re-run) vs the $1.50 assumed in the cfo.ai model.
+
 ## Demo
 pending
 
