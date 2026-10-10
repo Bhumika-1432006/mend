@@ -7,6 +7,7 @@ The caller must run `neatlogs.init(...)` before calling `solve` (init must prece
 anthropic import, so the client is created lazily).
 """
 
+import difflib
 import os
 import time
 from pathlib import Path
@@ -28,7 +29,8 @@ TOOLS = [
     },
     {
         "name": "read_file",
-        "description": "Read a text file. Returns numbered lines starting at `start` (1-based), at most `lines` lines.",
+        "description": "Read a text file. Returns numbered lines starting at `start` (1-based), at most `lines` lines. "
+        "Each line is prefixed with its number and a TAB; the code starts right after the TAB.",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -54,7 +56,7 @@ TOOLS = [
     {
         "name": "edit_file",
         "description": "Edit a file by replacing one exact occurrence of `old` with `new`. `old` must match the file's "
-        "current text exactly (including indentation; do not include the line-number prefixes shown by read_file) "
+        "current text exactly (including indentation; do not include the line-number-and-TAB prefix shown by read_file) "
         "and must occur exactly once - include enough surrounding lines to make it unique. "
         "Prefer this over write_file for any change to an existing file.",
         "input_schema": {
@@ -108,7 +110,7 @@ def list_files(work: Path) -> str:
 def read_file(work: Path, path: str, start: int = 1, lines: int = 200) -> str:
     text = _safe_path(work, path).read_text(encoding="utf-8").splitlines()
     chunk = text[start - 1 : start - 1 + lines]
-    out = "\n".join(f"{start + i}: {line}" for i, line in enumerate(chunk))
+    out = "\n".join(f"{start + i}\t{line}" for i, line in enumerate(chunk))
     remaining = len(text) - (start - 1 + len(chunk))
     if remaining > 0:
         out += f"\n... ({remaining} more lines; file has {len(text)} lines total)"
@@ -132,11 +134,54 @@ def edit_file(work: Path, path: str, old: str, new: str) -> str:
     text = target.read_text(encoding="utf-8")
     count = text.count(old)
     if count == 0:
-        raise ValueError("`old` not found in file; re-read the exact lines and copy them verbatim")
+        return _edit_ignoring_whitespace(target, path, text, old, new)
     if count > 1:
         raise ValueError(f"`old` occurs {count} times; include more surrounding context")
     target.write_text(text.replace(old, new, 1), encoding="utf-8")
     return f"edited {path}: replaced {old.count(chr(10)) + 1} line(s) with {new.count(chr(10)) + 1} line(s)"
+
+
+def _indent(line: str) -> int:
+    return len(line) - len(line.lstrip())
+
+
+def _edit_ignoring_whitespace(target: Path, path: str, text: str, old: str, new: str) -> str:
+    """Fallback when `old` has no exact match: match line by line ignoring surrounding whitespace,
+    re-indent `new` to fit, or explain precisely how `old` differs from the file."""
+    old_lines = old.rstrip("\n").split("\n")
+    file_lines = text.split("\n")
+    stripped = [line.strip() for line in file_lines]
+    want = [line.strip() for line in old_lines]
+    n = len(old_lines)
+    hits = [i for i in range(len(file_lines) - n + 1) if stripped[i : i + n] == want]
+    if len(hits) > 1:
+        starts = ", ".join(str(i + 1) for i in hits)
+        raise ValueError(f"`old` matches (ignoring whitespace) at lines {starts}; include more surrounding context")
+    first = next((k for k, w in enumerate(want) if w), None)
+    if not hits:
+        match = difflib.get_close_matches(want[first], stripped, n=1, cutoff=0) if first is not None else []
+        if not match:
+            raise ValueError("`old` not found in file; re-read the exact lines and copy them verbatim")
+        line_no = stripped.index(match[0])
+        actual, mine = file_lines[line_no], old_lines[first]
+        raise ValueError(
+            f"`old` not found. Closest line in the file is line {line_no + 1}: {actual!r} "
+            f"(leading spaces: {_indent(actual)}); your first line was {mine!r} (leading spaces: {_indent(mine)}). "
+            "Copy the text exactly as shown."
+        )
+    i = hits[0]
+    delta = 0 if first is None else _indent(file_lines[i + first]) - _indent(old_lines[first])
+    new_lines = new.rstrip("\n").split("\n") if new.rstrip("\n") else []
+    if delta > 0:
+        new_lines = [" " * delta + line if line.strip() else line for line in new_lines]
+    elif delta < 0:
+        new_lines = [line[min(-delta, len(line) - len(line.lstrip(" "))) :] for line in new_lines]
+    file_lines[i : i + n] = new_lines
+    target.write_text("\n".join(file_lines), encoding="utf-8")
+    return (
+        f"edited {path}: replaced {n} line(s) with {len(new_lines)} line(s) (note: your `old` had different "
+        f"indentation than the file; matched ignoring whitespace and re-indented `new` by {delta:+d} spaces)"
+    )
 
 
 @neatlogs.span(kind="TOOL", tool_name="run_tests")
