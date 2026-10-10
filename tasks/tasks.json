@@ -372,5 +372,23 @@
         "replace": "days / 360"
       }
     ]
+  },
+  {
+    "id": "29",
+    "difficulty": "hard",
+    "title": "Test suite really hangs",
+    "report": "Running the tests now hangs and never prints a result.",
+    "edits": [
+      {
+        "file": "invoicer/dates.py",
+        "find": "current += timedelta(days=1)",
+        "replace": "current += timedelta(days=0)"
+      },
+      {
+        "file": "invoicer/dates.py",
+        "find": "            added += 1\n",
+        "replace": "            pass\n"
+      }
+    ]
   }
 ]

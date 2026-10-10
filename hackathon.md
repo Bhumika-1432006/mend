@@ -174,6 +174,17 @@ Not done / blocked:
   stable improvement.
 - Entire CLI logged in (github:Chirag6722).
 
+### 2026-10-10 ~15:45 IST - repeat runs, task 25 mistake, task 29
+- Repeat run of the improved worker `2026-10-10T09-40-55`: 28/28 (second repeat running).
+- Mistake found: task 25's planted bug does not hang the suite (the function just returns the
+  start date), so its report "the suite never finishes" is inaccurate. Left unchanged so earlier
+  runs stay comparable.
+- Added task 29: a true infinite loop (date stops advancing and the counter never increases);
+  confirmed `run_tests` times out with no output. Purpose: evidence of a failed action and what
+  the worker does next.
+- Six GitHub issues created and assigned (Bhumika: #1 report polish, #2 demo mode, #3 video;
+  Abhijeet: #4 README evidence, #5 cfo.ai plan, #6 posts). First report page committed.
+
 ## Demo
 pending
 
