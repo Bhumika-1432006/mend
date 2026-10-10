@@ -250,6 +250,10 @@ def one_round(run_id: str) -> dict:
         after["passed"] == before["passed"] and tokens(after) <= (1 - TOKEN_SAVING) * tokens(before))
     if not kept:
         subprocess.run(["git", "revert", "--no-edit", "HEAD"], cwd=ROOT, check=True, capture_output=True)
+        # The revert also removed the diagnosis committed with the patch; keep it, it is the evidence of why.
+        subprocess.run(["git", "checkout", commit, "--", diagnosis_file], cwd=ROOT, check=True)
+        subprocess.run(["git", "commit", "-q", "-m", f"chore: keep the diagnosis of reverted round {run_id}"],
+                       cwd=ROOT, check=True)
     record = {"before": run_id, "before_passed": before["passed"], "after": after["run_id"],
               "after_passed": after["passed"], "total": after["total"],
               "before_tokens": tokens(before), "after_tokens": tokens(after), "commit": commit, "kept": kept,

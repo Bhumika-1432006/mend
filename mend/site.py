@@ -88,7 +88,7 @@ def render() -> str:
             chain.insert(0, next(r for r in kept if r["after"] == chain[0]["before"]))
         start = chain[0]
         delta = (last["after_tokens"] - start["before_tokens"]) / start["before_tokens"] * 100
-        hero_stat = (f'<div class="stat"><span class="k">{len(kept)} self-repair rounds · all kept on measured results</span>'
+        hero_stat = (f'<div class="stat"><span class="k">{len(kept)} self-repair rounds kept · {len(f["rounds"]) - len(kept)} reverted by the gate</span>'
                      f'<span class="big">{delta:+.0f}%<em> tokens</em></span>'
                      f'<span class="sub">latest chain of {len(chain)} rounds: {start["before_passed"]}/{start["total"]} → {last["after_passed"]}/{last["total"]} tasks solved, '
                      f'{start["before_tokens"]:,} → {last["after_tokens"]:,} tokens (single runs)</span>'

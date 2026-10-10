@@ -21,7 +21,7 @@ If a number has no file behind it, it is not here.
 
 | neatHack evidence item | Where to check it |
 |---|---|
-| The agent improved (before/after with numbers) | [rounds table](#self-repair-rounds-all-five-kept), [3-vs-3 repeat runs](#repeatable-not-lucky-same-28-tasks-3-runs-each), [held-out test](#held-out-test-10-bugs-the-supervisor-never-saw), [real-world library](#real-world-test-bugs-in-an-open-source-library-it-never-saw); [live recording](video/live/mend-live.mp4) |
+| The agent improved (before/after with numbers) | [rounds table](#self-repair-rounds-five-kept-one-reverted), [3-vs-3 repeat runs](#repeatable-not-lucky-same-28-tasks-3-runs-each), [held-out test](#held-out-test-10-bugs-the-supervisor-never-saw), [real-world library](#real-world-test-bugs-in-an-open-source-library-it-never-saw); [live recording](video/live/mend-live.mp4) |
 | You used neatlogs | [traced call](evidence/t02-first-traced-call.txt), [trace read back over MCP](evidence/t04-trace-readback.txt), [task 23 before](evidence/task23-before-trace.json) / [after](evidence/task23-after-trace.json) traces; 4 regression-guard detections ([`mend/detections.py`](mend/detections.py)); second opinion from neatlogs' own [neatroots](evidence/neatroots-check.md): a custom check flags all 4 original-worker runs and none of the repaired ones |
 | You used Entire | [round 4 checkpoint](https://entire.io/gh/thegoodengineers/mend/commit/7e2148e201fdaa9b2b3f921d1f2651950f537205) (the supervisor's own Claude Code session); the supervisor reads past checkpoints back as repair memory |
 | You used cfo.ai | [business plan](docs/business-plan.md) and its [cfo.ai export](docs/business-plan-cfo-ai.xlsx) |
@@ -63,7 +63,7 @@ worker agent ──runs 29 tasks──▶ neatlogs traces every model call and t
 
 ## Results
 
-### Self-repair rounds (all five kept)
+### Self-repair rounds (five kept, one reverted)
 
 | # | What Mend changed in itself | Solved | Tokens | Commit | Diagnosis |
 |---|---|---|---|---|---|
@@ -72,9 +72,10 @@ worker agent ──runs 29 tasks──▶ neatlogs traces every model call and t
 | 3 | Test-first workflow; stop as soon as the suite passes | 29 → 29 / 29 | 894,839 → 618,906 (−30.8%) | `931ea51` | [diagnosis](runs/2026-10-10T10-30-26-after.diagnosis.md) |
 | 4 | Loop hands the worker the file list up front and finishes automatically once the full suite passes after an edit | 29 → 29 / 29 | 618,906 → 432,858 (−30.1%) | [`7e2148e`](https://entire.io/gh/thegoodengineers/mend/commit/7e2148e201fdaa9b2b3f921d1f2651950f537205) (Entire checkpoint) | [diagnosis](runs/2026-10-10T10-41-18-after.diagnosis.md) |
 | 5 | Loop re-runs the full suite automatically after any successful edit and finishes on green | 29 → 29 / 29 | 456,563 → 347,960 (−23.8%) | [`c07f702`](https://entire.io/gh/thegoodengineers/mend/commit/c07f70237b8f640e5435edbec09dbb6976c49ed8) (Entire checkpoint) | [diagnosis](runs/2026-10-10T11-18-45.diagnosis.md) |
+| 6 | `edit_file` takes a list of edits so a whole fix lands in one call | 29 → 29 / 29 | 347,960 → 361,174 (+3.8%) | `49c99e2`, **reverted** by `b5e788d` | [diagnosis](runs/2026-10-10T11-50-52-after.diagnosis.md) |
 
 Round records: the `*.round.json` files in [`runs/`](runs/). Rounds 2 and 3 were run back to back with
-`python -m mend.supervisor <run> --rounds 2`; rounds 4 and 5 ran from a clean runner clone. Round 5 also created its own neatlogs regression guard ("Mend: slow solve (6+ turns)", matched 5 real spans). Rounds 2-3 "after" figures are single runs. The worker after round 4 was run three times: 29/29 each time ([10-59-46](runs/2026-10-10T10-59-46-after.json) 432,858, [11-13-11](runs/2026-10-10T11-13-11.json) 451,105, [11-18-45](runs/2026-10-10T11-18-45.json) 456,563 tokens). **Caveat:** the supervisor learns from the same 29 tasks it is scored on, and round 3's prompt includes a rule for hanging test suites learned from task 29; on a held-out set it never sees, it also improved (below).
+`python -m mend.supervisor <run> --rounds 2`; rounds 4-6 ran from a clean runner clone. **Round 6 was reverted automatically:** it still solved 29/29 but used 3.8% more tokens, so the gate rejected it. Round 5 also created its own neatlogs regression guard ("Mend: slow solve (6+ turns)", matched 5 real spans). Rounds 2-3 "after" figures are single runs. The worker after round 4 was run three times: 29/29 each time ([10-59-46](runs/2026-10-10T10-59-46-after.json) 432,858, [11-13-11](runs/2026-10-10T11-13-11.json) 451,105, [11-18-45](runs/2026-10-10T11-18-45.json) 456,563 tokens). **Caveat:** the supervisor learns from the same 29 tasks it is scored on, and round 3's prompt includes a rule for hanging test suites learned from task 29; on a held-out set it never sees, it also improved (below).
 
 **The first bug Mend found in itself.** The worker read only the first 200 lines of the
 233-line `ledger.py`, then rewrote the whole file to change one word. That silently deleted
