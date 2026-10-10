@@ -174,7 +174,10 @@ def diagnose_failures(run_id: str) -> dict:
         messages=[{"role": "user", "content": "\n\n".join(parts)}],
         output_config={"effort": "high", "format": {"type": "json_schema", "schema": DIAGNOSIS_SCHEMA}},
     )
-    return json.loads(next(b.text for b in response.content if b.type == "text"))
+    diagnosis = json.loads(next(b.text for b in response.content if b.type == "text"))
+    diagnosis["usage"] = {"model": MODEL, "input_tokens": response.usage.input_tokens,
+                          "output_tokens": response.usage.output_tokens}
+    return diagnosis
 
 
 def write_diagnosis(run_id: str, diagnosis: dict) -> str:
@@ -250,7 +253,8 @@ def one_round(run_id: str) -> dict:
     record = {"before": run_id, "before_passed": before["passed"], "after": after["run_id"],
               "after_passed": after["passed"], "total": after["total"],
               "before_tokens": tokens(before), "after_tokens": tokens(after), "commit": commit, "kept": kept,
-              "diagnosis": diagnosis_file, "title": diagnosis["fix"]["title"]}
+              "diagnosis": diagnosis_file, "title": diagnosis["fix"]["title"],
+              "diagnosis_usage": diagnosis.get("usage")}
     if kept:  # leave a neatlogs detection behind so this failure is flagged if it ever comes back
         try:
             record["guard"] = detections.create(diagnosis["fix"]["guard"], detections.group_id())
