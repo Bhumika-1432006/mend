@@ -42,11 +42,25 @@ TOOLS = [
     },
     {
         "name": "write_file",
-        "description": "Replace the whole content of a file.",
+        "description": "Create a new file or replace the WHOLE content of a file. Anything you omit is deleted. "
+        "To change part of an existing file use edit_file instead.",
         "input_schema": {
             "type": "object",
             "properties": {"path": {"type": "string"}, "content": {"type": "string"}},
             "required": ["path", "content"],
+            "additionalProperties": False,
+        },
+    },
+    {
+        "name": "edit_file",
+        "description": "Edit a file by replacing one exact occurrence of `old` with `new`. `old` must match the file's "
+        "current text exactly (including indentation; do not include the line-number prefixes shown by read_file) "
+        "and must occur exactly once - include enough surrounding lines to make it unique. "
+        "Prefer this over write_file for any change to an existing file.",
+        "input_schema": {
+            "type": "object",
+            "properties": {"path": {"type": "string"}, "old": {"type": "string"}, "new": {"type": "string"}},
+            "required": ["path", "old", "new"],
             "additionalProperties": False,
         },
     },
@@ -94,7 +108,11 @@ def list_files(work: Path) -> str:
 def read_file(work: Path, path: str, start: int = 1, lines: int = 200) -> str:
     text = _safe_path(work, path).read_text(encoding="utf-8").splitlines()
     chunk = text[start - 1 : start - 1 + lines]
-    return "\n".join(f"{start + i}: {line}" for i, line in enumerate(chunk))
+    out = "\n".join(f"{start + i}: {line}" for i, line in enumerate(chunk))
+    remaining = len(text) - (start - 1 + len(chunk))
+    if remaining > 0:
+        out += f"\n... ({remaining} more lines; file has {len(text)} lines total)"
+    return out
 
 
 @neatlogs.span(kind="TOOL", tool_name="write_file")
@@ -106,13 +124,28 @@ def write_file(work: Path, path: str, content: str) -> str:
     return f"wrote {path} ({len(content)} chars)"
 
 
+@neatlogs.span(kind="TOOL", tool_name="edit_file")
+def edit_file(work: Path, path: str, old: str, new: str) -> str:
+    target = _safe_path(work, path)
+    if "tests" in target.relative_to(work.resolve()).parts:
+        raise ValueError("editing tests is not allowed")
+    text = target.read_text(encoding="utf-8")
+    count = text.count(old)
+    if count == 0:
+        raise ValueError("`old` not found in file; re-read the exact lines and copy them verbatim")
+    if count > 1:
+        raise ValueError(f"`old` occurs {count} times; include more surrounding context")
+    target.write_text(text.replace(old, new, 1), encoding="utf-8")
+    return f"edited {path}: replaced {old.count(chr(10)) + 1} line(s) with {new.count(chr(10)) + 1} line(s)"
+
+
 @neatlogs.span(kind="TOOL", tool_name="run_tests")
 def run_tests_tool(work: Path, pattern: str = "") -> str:
     passed, output = run_tests(work, pattern)
     return f"{'PASSED' if passed else 'FAILED'}\n{output}"
 
 
-HANDLERS = {"list_files": list_files, "read_file": read_file, "write_file": write_file, "run_tests": run_tests_tool}
+HANDLERS = {"list_files": list_files, "read_file": read_file, "write_file": write_file, "edit_file": edit_file, "run_tests": run_tests_tool}
 
 
 def current_trace_id() -> str | None:
