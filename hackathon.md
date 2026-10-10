@@ -185,6 +185,21 @@ Not done / blocked:
 - Six GitHub issues created and assigned (Bhumika: #1 report polish, #2 demo mode, #3 video;
   Abhijeet: #4 README evidence, #5 cfo.ai plan, #6 posts). First report page committed.
 
+### 2026-10-10 ~16:30 IST - business plan, repeat runs, idea check
+- cfo.ai: the builder built the model in cfo.ai (free account) and exported it:
+  `docs/business-plan-cfo-ai.xlsx`, summary in `docs/business-plan.md`. Finding: 31% gross
+  margin at $49/team with 20 rounds at $1.50 (estimate); base runway ends May 2027. The event
+  page now confirms the official route for neatHack credits: sign up at cfo.ai/neathacks with a
+  card and cancel immediately in Settings -> Billing (builder's decision).
+- Repeat runs of the improved worker: `09-40-55` 28/28 (874,601 tokens), `09-51-17` 28/28
+  (901,796 tokens). With round 1's re-run: 3 of 3 runs 28/28, mean about 876k tokens, against
+  one baseline run at 27/28 and 933k. Baseline repeats from commit 13defdb are running (in a
+  separate worktree) before any improvement claim.
+- The builder briefly considered pivoting to a hardware (PCB) design agent; a proposal PDF was
+  written, then the team decided to stay with Mend. Runs were stopped during the discussion and
+  restarted afterwards.
+- Supervisor can now run several rounds unattended (`--rounds N`, stops at the first revert).
+
 ## Demo
 pending
 
