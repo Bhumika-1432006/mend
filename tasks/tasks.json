@@ -263,5 +263,114 @@
         "replace": "return to_money(subtotal * percent / 1000)"
       }
     ]
+  },
+  {
+    "id": "21",
+    "difficulty": "hard",
+    "title": "Statement balance wrong after payment",
+    "report": "Customer statements show the wrong running balance once a payment is listed.",
+    "edits": [
+      {
+        "file": "invoicer/ledger.py",
+        "find": "running += e.signed()",
+        "replace": "running += e.amount"
+      }
+    ]
+  },
+  {
+    "id": "22",
+    "difficulty": "hard",
+    "title": "Payments exported with a due date",
+    "report": "The CSV export shows a due date on payment rows. I think csv_import is writing the wrong column.",
+    "edits": [
+      {
+        "file": "invoicer/ledger.py",
+        "find": "\"due\": e.due.isoformat() if e.due else \"\",",
+        "replace": "\"due\": e.on.isoformat(),"
+      }
+    ]
+  },
+  {
+    "id": "23",
+    "difficulty": "hard",
+    "title": "Payment applied to newest invoice",
+    "report": "A customer's payment was applied to their newest invoice instead of the oldest one.",
+    "edits": [
+      {
+        "file": "invoicer/ledger.py",
+        "find": "sorted(items, key=lambda i: i.issued)",
+        "replace": "sorted(items, key=lambda i: i.issued, reverse=True)"
+      }
+    ]
+  },
+  {
+    "id": "24",
+    "difficulty": "hard",
+    "title": "Aging bucket off at 30 days",
+    "report": "The aging report puts invoices that are exactly 30 days overdue in the wrong bucket. Maybe is_overdue in dates.py is off by one?",
+    "edits": [
+      {
+        "file": "invoicer/ledger.py",
+        "find": "if days <= 30:",
+        "replace": "if days < 30:"
+      }
+    ]
+  },
+  {
+    "id": "25",
+    "difficulty": "hard",
+    "title": "Test suite hangs",
+    "report": "Since this morning the test suite never finishes.",
+    "edits": [
+      {
+        "file": "invoicer/dates.py",
+        "find": "current += timedelta(days=1)",
+        "replace": "current + timedelta(days=1)"
+      }
+    ]
+  },
+  {
+    "id": "26",
+    "difficulty": "hard",
+    "title": "Many tests failing after money refactor",
+    "report": "Lots of tests started failing after someone touched the money helpers.",
+    "edits": [
+      {
+        "file": "invoicer/money.py",
+        "find": "CENT = Decimal(\"0.01\")",
+        "replace": "CENT = Decimal(\"0.1\")"
+      }
+    ]
+  },
+  {
+    "id": "27",
+    "difficulty": "hard",
+    "title": "Two complaints: tax and big-order discount",
+    "report": "Two complaints from finance: standard-rate tax on invoices looks too low, and the 10% big-order discount is smaller than advertised.",
+    "edits": [
+      {
+        "file": "invoicer/tax.py",
+        "find": "\"standard\": Decimal(\"0.18\")",
+        "replace": "\"standard\": Decimal(\"0.12\")"
+      },
+      {
+        "file": "invoicer/discounts.py",
+        "find": "(Decimal(\"10000\"), Decimal(\"10\"))",
+        "replace": "(Decimal(\"10000\"), Decimal(\"8\"))"
+      }
+    ]
+  },
+  {
+    "id": "28",
+    "difficulty": "hard",
+    "title": "Late interest slightly high",
+    "report": "Late interest is slightly higher than our policy allows (simple interest on a 365-day year).",
+    "edits": [
+      {
+        "file": "invoicer/ledger.py",
+        "find": "days / 365",
+        "replace": "days / 360"
+      }
+    ]
   }
 ]

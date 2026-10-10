@@ -15,7 +15,8 @@ import neatlogs
 
 from mend.tasks import run_tests
 
-MODEL = os.environ.get("MEND_MODEL", "claude-opus-5-5")
+# A cheap worker that Mend makes reliable; the supervisor runs on a stronger model.
+MODEL = os.environ.get("MEND_WORKER_MODEL", "claude-haiku-4-5")
 MAX_TURNS = 15
 PROMPT_FILE = Path(__file__).parent / "prompts" / "worker.md"
 
@@ -131,9 +132,9 @@ def solve_task(task_id: str, report: str, work: Path) -> dict:
     system = PROMPT_FILE.read_text(encoding="utf-8")
     while result["turns"] < MAX_TURNS:
         result["turns"] += 1
+        extra = {} if MODEL.startswith("claude-haiku-4-5") else {"output_config": {"effort": "medium"}}  # Haiku 4.5 rejects effort
         response = client().messages.create(
-            model=MODEL, max_tokens=16000, system=system, tools=TOOLS, messages=messages,
-            output_config={"effort": "medium"},
+            model=MODEL, max_tokens=16000, system=system, tools=TOOLS, messages=messages, **extra,
         )
         result["input_tokens"] += response.usage.input_tokens
         result["output_tokens"] += response.usage.output_tokens
