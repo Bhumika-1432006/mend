@@ -1,21 +1,116 @@
 # Mend
 
-An agent that reads its own [neatlogs](https://neatlogs.com) traces, rewrites its own code, and
-proves the fix with a re-run. Built for neatHack (Oct 10-12, 2026) by team The Good Engineers.
+**An agent that reads its own [neatlogs](https://neatlogs.com) traces, fixes its own code, and
+keeps the fix only if a full re-run gets better.** Built during
+[neatHack](https://neatlogs.com/hackathon), 10–12 October 2026, by team The Good Engineers.
 
-Status: in progress. Nothing below is claimed until it is measured; see `hackathon.md` for the
-dated build log and evidence.
+**Website:** https://thegoodengineers.github.io/mend/ · **Full data report:**
+[report.html](https://thegoodengineers.github.io/mend/report.html) · **Build log:**
+[hackathon.md](hackathon.md)
 
-- Plan: [docs/PLAN.md](docs/PLAN.md) - tasks: [docs/TASKS.md](docs/TASKS.md) -
-  runbook: [docs/RUNBOOK.md](docs/RUNBOOK.md)
+Every number in this README comes from a file in [`runs/`](runs/) or [`evidence/`](evidence/).
+If a number has no file behind it, it is not here.
+
+## How it works
+
+```
+worker agent ──runs 29 tasks──▶ neatlogs traces every model call and tool call
+      ▲                                   │
+      │                                   ▼  (neatlogs MCP: get_trace_context)
+ keep or revert ◀── re-run the suite ◀── supervisor diagnoses failed + wasteful runs
+                                          │
+                                          ▼
+                     Claude Code applies ONE general fix to the worker,
+                     committed and captured as an Entire checkpoint
+```
+
+1. **Run.** A worker agent ([`mend/worker.py`](mend/worker.py), Claude Haiku 4.5) fixes planted
+   bugs in a small invoicing library ([`sandbox/`](sandbox/), 37 tests). There are 29 tasks in
+   [`tasks/tasks.json`](tasks/tasks.json). Pass means the library's test suite passes, judged
+   by the runner, not by the agent.
+2. **Trace.** Every model call and tool call is a span in neatlogs (one WORKFLOW span per task,
+   TOOL spans per tool call). Each run file stores the task's neatlogs trace ID.
+3. **Diagnose.** The supervisor ([`mend/supervisor.py`](mend/supervisor.py), Claude Opus 5.5)
+   pulls the traces of failed tasks and the slowest passing tasks back over the neatlogs MCP
+   server ([`mend/traces.py`](mend/traces.py)). It writes a diagnosis naming the failing step
+   and one general fix.
+4. **Patch.** Headless Claude Code applies the fix to `mend/worker.py` or
+   `mend/prompts/worker.md` only. A guard rejects patches that touch other files or name
+   specific library code.
+5. **Prove.** The suite re-runs. The patch is kept if more tasks pass, or the same tasks pass
+   with at least 15% fewer tokens. Otherwise it is reverted with `git revert`.
+
+## Results
+
+### Self-repair rounds (all three kept)
+
+| # | What Mend changed in itself | Solved | Tokens | Commit | Diagnosis |
+|---|---|---|---|---|---|
+| 1 | Added an exact-replace `edit_file` tool; steered edits away from whole-file rewrites | 27 → 28 / 28 | 933,181 → 851,463 (−8.8%) | `e8a6baf` | [diagnosis](runs/2026-10-10T09-15-17.diagnosis.md) |
+| 2 | `edit_file` shows the current text of a near match on a miss; clearer line prefixes | 28 → 29 / 29 | 1,005,203 → 894,839 (−11.0%) | `f9dae91` | [diagnosis](runs/2026-10-10T10-17-27.diagnosis.md) |
+| 3 | Test-first workflow; stop as soon as the suite passes | 29 → 29 / 29 | 894,839 → 618,906 (−30.8%) | `931ea51` | [diagnosis](runs/2026-10-10T10-30-26-after.diagnosis.md) |
+
+Round records: [`runs/*.round.json`](runs/). Rounds 2 and 3 were run back to back with
+`python -m mend.supervisor <run> --rounds 2`. Each "after" figure is a single run.
+
+**The first bug Mend found in itself.** The worker read only the first 200 lines of the
+233-line `ledger.py`, then rewrote the whole file to change one word. That silently deleted
+everything after line 200. Task 23 failed at the 15-turn limit; after the fix it passed in 8
+turns.
+
+### Repeatable, not lucky: same 28 tasks, 3 runs each
+
+| Worker | Runs | Solved | Mean tokens per run | Task 23 |
+|---|---|---|---|---|
+| Before self-repair (`13defdb`) | [09-15-17](runs/2026-10-10T09-15-17.json), [10-17-27-v0](runs/2026-10-10T10-17-27-v0.json), [10-28-58-v0](runs/2026-10-10T10-28-58-v0.json) | 27, 26, 27 | 946,860 | passed 0 of 3 |
+| After round 1 | [09-31-07](runs/2026-10-10T09-31-07-after.json), [09-40-55](runs/2026-10-10T09-40-55.json), [09-51-17](runs/2026-10-10T09-51-17.json) | 28, 28, 28 | 875,953 (−7.5%) | passed 3 of 3 |
+
+For reference, the same worker on Claude Opus 5.5 solved the first 20 tasks: 20/20, 162,006
+tokens ([run](runs/2026-10-10T08-37-19.json)).
+
+## Evidence
+
+| Claim | Evidence |
+|---|---|
+| Runs are traced in neatlogs and read back by the agent | [`evidence/t02-first-traced-call.txt`](evidence/t02-first-traced-call.txt), [`evidence/t04-trace-readback.txt`](evidence/t04-trace-readback.txt); each run file has per-task `trace_id`s |
+| The agent recovers from a failed action | [`evidence/t17-recovery-from-timeout.txt`](evidence/t17-recovery-from-timeout.txt): `run_tests` timed out after 60 s, then the worker found and fixed the infinite loop (task 29) |
+| Before/after with the numbers compared | the tables above; every row links to its run file |
+| Self-fixes are written by Claude Code and committed by the supervisor | commits `e8a6baf`, `f9dae91`, `931ea51` (`fix(worker): …`) |
+| Entire checkpoints | being regenerated from a clean runner clone; see note below |
+| Business plan with cfo.ai | [`docs/business-plan.md`](docs/business-plan.md), export [`docs/business-plan-cfo-ai.xlsx`](docs/business-plan-cfo-ai.xlsx) |
+| Code written during the hackathon | commit history; the first commit holds only plans written before the event, as the rules allow |
+| Building in public | [first #neatHack post](https://x.com/theintrodev/status/2108851736765141188) |
+
+**Note on Entire checkpoints.** Entire captured the supervisor's headless Claude Code sessions
+as checkpoints, for example the session behind `e8a6baf`. Those checkpoints also included the
+lead's own interactive chat, so we removed them from the public repo. New checkpoints are
+created from a separate clean clone that only runs the supervisor. Links will be added here.
+
+## Built with
+
+- **neatlogs:** tracing (Python SDK, `wrap()` + `@neatlogs.span`) and reading traces back over
+  the neatlogs MCP server. The traces are the supervisor's input.
+- **Entire:** Claude Code hooks plus `commit_linking: always`, so every self-fix commit links
+  to the session that wrote it.
+- **cfo.ai:** pricing, costs, revenue and runway, from our measured cost per repair round.
+- **Claude:** Haiku 4.5 as the worker, Opus 5.5 as the supervisor, Claude Code for patches.
 
 ## Run locally
 
 ```bash
 python -m venv .venv
 .venv/Scripts/pip install -e ".[dev]"   # macOS/Linux: .venv/bin/pip
-pytest
+pytest                                  # unit tests + checks that all 29 planted bugs break the sandbox
 ```
 
 Needs `NEATLOGS_API_KEY` (neatlogs Project API key) and `ANTHROPIC_API_KEY` as environment
 variables. Never commit them.
+
+```bash
+python -m mend.suite                 # run the worker on all tasks -> runs/<run_id>.json
+python -m mend.supervisor --rounds 2 # self-repair rounds on the latest run
+python -m mend.site                  # rebuild index.html from the run files
+python -m mend.report                # rebuild report.html
+```
+
+The supervisor needs the Claude Code CLI (`claude`) for the patch step, and a clean git tree.
