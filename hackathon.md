@@ -185,7 +185,7 @@ Not done / blocked:
 - Six GitHub issues created and assigned (Bhumika: #1 report polish, #2 demo mode, #3 video;
   Abhijeet: #4 README evidence, #5 cfo.ai plan, #6 posts). First report page committed.
 
-### 2026-10-10 ~16:30 IST - business plan, repeat runs, idea check
+### 2026-10-10 ~15:45 IST - business plan, repeat runs, idea check
 - cfo.ai: the builder built the model in cfo.ai (free account) and exported it:
   `docs/business-plan-cfo-ai.xlsx`, summary in `docs/business-plan.md`. Finding: 31% gross
   margin at $49/team with 20 rounds at $1.50 (estimate); base runway ends May 2027. The event
@@ -200,7 +200,7 @@ Not done / blocked:
   restarted afterwards.
 - Supervisor can now run several rounds unattended (`--rounds N`, stops at the first revert).
 
-### 2026-10-10 ~17:30 IST - two more self-repair rounds, repeat runs, new site, transcript clean-up
+### 2026-10-10 ~16:25 IST - two more self-repair rounds, repeat runs, new site, transcript clean-up
 - Baseline repeats of the original worker (commit 13defdb): 26/28 and 27/28 (copied in as
   `*-v0.json`). Original worker over 3 runs: 27, 26, 27 of 28, mean 946,860 tokens; task 23
   failed in all 3. Worker after round 1, 3 runs: 28, 28, 28, mean 875,953 tokens (-7.5%);
@@ -220,7 +220,7 @@ Not done / blocked:
   (`entire disable --local`). From now on, checkpoints come from a separate clean clone that runs
   the supervisor, so they contain only the supervisor's own Claude Code session.
 
-### 2026-10-10 ~18:45 IST - round 4 from the clean runner, README, Editions-style site, regression guards
+### 2026-10-10 ~16:40 IST - round 4 from the clean runner, README, Editions-style site, regression guards
 - Round 4 (from the clean runner clone) kept: commit `7e2148e`, the worker loop finishes as soon
   as the full suite passes after an edit; 29/29, tokens 618,906 -> 432,858 (-30.1%). Its Entire
   checkpoint `01M4JQG23JYXJ34SHA46MCGMV2` holds only the supervisor's own session (checked: no
@@ -234,7 +234,7 @@ Not done / blocked:
   neatHack projects into a private notes folder outside the repo; an Analyst will rank
   improvements; the lead's agent builds. Video moved to submission day.
 
-### 2026-10-10 ~20:30 IST - held-out test, live recording, verification in CI, repair memory
+### 2026-10-10 ~17:25 IST - held-out test, live recording, verification in CI, repair memory
 - Scout (background agent) catalogued 69 neatHack projects from public GitHub/X; Analyst ranked
   improvements (private notes outside the repo). Acted on: held-out set, honest README caveats,
   rejected-patch records, repair memory, verify + CI, judges' block, post drafts.
@@ -251,6 +251,22 @@ Not done / blocked:
 - Supervisor: repair memory (history of kept/reverted/rejected fixes, enriched with `entire
   checkpoint explain`), and guard-rejected patches now leave a round record. Round 5 running.
 - Draft posts in `docs/posts.md` (8 drafts with real numbers); only 1 posted so far.
+
+### 2026-10-10 ~17:55 IST - round 5, real-world target, entire-graph, log time fix
+- Correction: four earlier entry headings had wrong times (estimated, not checked); they now
+  match the commit times of the log updates (15:45, 16:25, 16:40, 17:25 IST).
+- Round 5 (clean runner) kept: commit `c07f702`, the loop re-runs the full suite after any
+  successful edit; 29/29, tokens 456,563 -> 347,960 (-23.8%). It created its own neatlogs guard
+  "Mend: slow solve (6+ turns)" (matched 5 spans). Its checkpoint contains only the supervisor's
+  session (checked).
+- Measured cost (run-file tokens x list price): cost per task $0.040 -> $0.015 across rounds 1-5;
+  business plan updated. The supervisor now records its diagnosis call's token usage per round.
+- Real-world held-out target: `realworld/inflection` (inflection 0.5.1, MIT, unmodified, 455 own
+  tests). 8 planted bugs its tests catch (2 dropped because its tests miss them). Original vs
+  current worker runs in progress.
+- entire-graph v0.4.0 installed and `entire graph init-agents` run in the clean runner, so the
+  Claude Code session that writes each self-fix locates code via Entire's graph.
+- Second Scout pass running (changes since the 17:30 scan).
 
 ## Demo
 pending
