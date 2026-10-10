@@ -184,6 +184,10 @@ def write_diagnosis(run_id: str, diagnosis: dict) -> str:
     text = (f"# Diagnosis of run {run_id}\n\n| Task | Failing step | Cause | General weakness |\n|---|---|---|---|\n{rows}\n\n"
             f"## Chosen fix: {fix['title']}\n\nFile: `{fix['target_file']}`\n\n{fix['instructions']}\n\n"
             f"Why it is general: {fix['why_general']}\n")
+    if fix.get("guard"):
+        g = fix["guard"]
+        text += (f"\n## Proposed neatlogs regression guard\n\n`{g['display_name']}`: regex `{g['output_pattern']}` on the "
+                 f"output of `{g['span_name']}` spans. {g['description']}\n")
     path = RUNS / f"{run_id}.diagnosis.md"
     path.write_text(text, encoding="utf-8")
     return str(path.relative_to(ROOT))
