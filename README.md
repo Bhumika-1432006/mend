@@ -8,6 +8,12 @@ keeps the fix only if a full re-run gets better.** Built during
 [report.html](https://thegoodengineers.github.io/mend/report.html) · **Build log:**
 [hackathon.md](hackathon.md)
 
+[![Mend website](docs/img/site-hero.png)](https://thegoodengineers.github.io/mend/)
+
+[![Live recording: original worker fails, repaired worker passes](docs/img/live-result.png)](video/live/mend-live.mp4)
+*Live recording (1:55, click): same task, same model. Original worker failed in 15 turns; after
+self-repair it passed in 4.*
+
 Every number in this README comes from a file in [`runs/`](runs/) or [`evidence/`](evidence/).
 If a number has no file behind it, it is not here.
 
