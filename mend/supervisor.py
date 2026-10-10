@@ -3,9 +3,10 @@
     python -m mend.supervisor              # one round on the latest run file
     python -m mend.supervisor <run_id>     # one round on a given run
 
-Round: failed traces (MCP) -> diagnosis (Claude, structured JSON) -> one general patch to the
-worker (headless Claude Code, so Entire can link the session to the commit) -> guard + commit
--> re-run the suite -> keep if more tasks pass, else git revert.
+Round: traces of failed and most wasteful runs (MCP) -> diagnosis (Claude, structured JSON) ->
+one general patch to the worker (headless Claude Code, so Entire can link the session to the
+commit) -> guard + commit -> re-run the suite -> keep if more tasks pass, or the same number
+pass with at least 15% fewer tokens; otherwise git revert.
 """
 
 import json
@@ -22,9 +23,11 @@ from mend.traces import get_trace, span_lines
 MODEL = os.environ.get("MEND_MODEL", "claude-opus-5-5")
 ALLOWED_FILES = {"mend/worker.py", "mend/prompts/worker.md"}
 # Words that would mean the patch hard-codes knowledge of specific planted bugs.
-TASK_SPECIFIC = ("money.py", "dates.py", "tax.py", "discounts.py", "invoice.py", "csv_import.py",
-                 "weekday", "coupon", "gst", "ROUND_HALF")
+TASK_SPECIFIC = ("money.py", "dates.py", "tax.py", "discounts.py", "invoice.py", "csv_import.py", "ledger.py",
+                 "weekday", "coupon", "gst", "ROUND_HALF", "aging", "interest")
 SPAN_TEXT_LIMIT = 700
+WASTEFUL_SAMPLE = 3  # passing tasks with the most turns, also shown to the diagnosis
+TOKEN_SAVING = 0.15  # same pass count with this much fewer tokens also counts as better
 
 DIAGNOSIS_SCHEMA = {
     "type": "object",
@@ -64,8 +67,10 @@ The worker fixes bugs in a small Python library using four tools. You get its so
 system prompt, and for each failed task the bug report and the trace (spans in order, with
 inputs and outputs, truncated).
 
-Find where each run went wrong, group the failures by the worker behaviour that caused them,
-and propose ONE fix to the worker that addresses the most common cause. The fix must improve
+Some runs failed; others passed but took many turns. Find where each run went wrong or
+wasted turns, group them by the worker behaviour that caused it, and propose ONE fix to the
+worker that addresses the most common cause - more tasks solved, or the same tasks in fewer
+turns. The fix must improve
 the worker in general - its prompt, tools or loop policy. It must never mention specific
 modules, functions or bugs of the library, and never special-case a task."""
 
@@ -97,14 +102,16 @@ def diagnose_failures(run_id: str) -> dict:
     run = json.loads((RUNS / f"{run_id}.json").read_text(encoding="utf-8"))
     reports = {t["id"]: t["report"] for t in load_tasks()}
     failed = [t for t in run["tasks"] if not t["passed"]]
-    if not failed:
+    wasteful = sorted((t for t in run["tasks"] if t["passed"]), key=lambda t: -t.get("turns", 0))[:WASTEFUL_SAMPLE]
+    if not failed and not wasteful:
         return {"failures": [], "fix": None}
     parts = [
         "## Worker source (mend/worker.py)\n" + (ROOT / "mend/worker.py").read_text(encoding="utf-8"),
         "## Worker system prompt (mend/prompts/worker.md)\n" + (ROOT / "mend/prompts/worker.md").read_text(encoding="utf-8"),
     ]
-    for t in failed:
-        header = f"## Failed task {t['task_id']} (stop={t.get('stop')}, turns={t.get('turns')})\nBug report: {reports[t['task_id']]}"
+    for t in failed + wasteful:
+        outcome = "Failed" if not t["passed"] else "Passed but slow"
+        header = f"## {outcome}: task {t['task_id']} (stop={t.get('stop')}, turns={t.get('turns')})\nBug report: {reports[t['task_id']]}"
         try:
             body = trace_digest(get_trace(t["trace_id"])) if t.get("trace_id") else f"no trace: {t.get('error')}"
         except Exception as exc:  # one unreadable trace should not block the diagnosis
@@ -174,14 +181,18 @@ def one_round(run_id: str) -> dict:
                    cwd=ROOT, check=True)
     commit = git("rev-parse", "--short", "HEAD")
     after = run_suite([t["task_id"] for t in before["tasks"]], label="after")
-    kept = after["passed"] > before["passed"]
+    tokens = lambda r: r.get("input_tokens", 0) + r.get("output_tokens", 0)  # noqa: E731
+    kept = after["passed"] > before["passed"] or (
+        after["passed"] == before["passed"] and tokens(after) <= (1 - TOKEN_SAVING) * tokens(before))
     if not kept:
         subprocess.run(["git", "revert", "--no-edit", "HEAD"], cwd=ROOT, check=True, capture_output=True)
     record = {"before": run_id, "before_passed": before["passed"], "after": after["run_id"],
-              "after_passed": after["passed"], "total": after["total"], "commit": commit, "kept": kept,
+              "after_passed": after["passed"], "total": after["total"],
+              "before_tokens": tokens(before), "after_tokens": tokens(after), "commit": commit, "kept": kept,
               "diagnosis": diagnosis_file}
     (RUNS / f"{after['run_id']}.round.json").write_text(json.dumps(record, indent=2), encoding="utf-8")
-    print(f"round: {before['passed']} -> {after['passed']} of {after['total']}; {'KEPT' if kept else 'REVERTED'} {commit}")
+    print(f"round: {before['passed']} -> {after['passed']} of {after['total']}, tokens {tokens(before)} -> {tokens(after)}; "
+          f"{'KEPT' if kept else 'REVERTED'} {commit}")
     return record
 
 

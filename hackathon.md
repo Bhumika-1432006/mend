@@ -138,6 +138,19 @@ Not done / blocked:
   Decision pending with the builder (harder tasks and/or a cheaper worker model).
 - Tests: `pytest` 4 files passing.
 
+### 2026-10-10 ~15:00 IST - cheap worker, hard tasks, Entire enabled
+- Builder chose: worker on Claude Haiku 4.5, supervisor on Claude Opus 5.5, plus harder tasks.
+- Added `sandbox/invoicer/ledger.py` (233 lines, 8 tests) and hard tasks 21-28 (bugs past
+  line 200, hanging suite, flooded output, two-file fix, misleading reports). 28 tasks, all
+  checked to break the tests.
+- **Haiku baseline `2026-10-10T09-15-17`: 27/28 passed.** Task 23 failed (max 15 turns); task 24
+  passed on its 15th turn. 885,631 input / 47,550 output tokens, about $1.12 at list price,
+  mean 8.4 turns - more tokens and cost than the Opus run, because of the extra turns.
+- Supervisor now also studies the 3 most turn-hungry passing runs, and keeps a patch if more
+  tasks pass or the same tasks pass with at least 15% fewer tokens.
+- Entire: `entire enable --agent claude-code --project --telemetry=false`, `commit_linking:
+  always`. 0 checkpoints so far (hooks load at session start). `entire login` pending (builder).
+
 ## Demo
 pending
 
