@@ -20,7 +20,7 @@ from pathlib import Path
 
 from mend.tasks import HELDOUT_FILE, REALWORLD_FILE, ROOT, TASKS_FILE, load_tasks, prepare
 
-RUNS = ROOT / "runs"
+RUNS = Path(os.environ.get("MEND_RUNS_DIR", ROOT / "runs"))  # override for side experiments
 
 
 def git(*args: str) -> str:
@@ -74,7 +74,7 @@ def run_suite(task_ids: list[str] | None = None, label: str = "", heldout: bool 
 
 
 if __name__ == "__main__":
-    neatlogs.init(api_key=os.environ["NEATLOGS_API_KEY"], workflow_name="mend-worker")
+    neatlogs.init(api_key=os.environ["NEATLOGS_API_KEY"], workflow_name=os.environ.get("MEND_WORKFLOW", "mend-worker"))
     try:
         args = [a for a in sys.argv[1:] if not a.startswith("--")]
         held, real = "--heldout" in sys.argv, "--realworld" in sys.argv
