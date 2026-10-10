@@ -206,8 +206,10 @@ def solve_task(task_id: str, report: str, work: Path) -> dict:
     """Run the agent loop on one task. Returns turns, tokens, stop reason and the trace id."""
     result = {"task_id": task_id, "trace_id": current_trace_id(), "turns": 0,
               "input_tokens": 0, "output_tokens": 0, "stop": None, "summary": ""}
-    messages = [{"role": "user", "content": f"Bug report: {report}"}]
+    files = list_files(work)
+    messages = [{"role": "user", "content": f"Bug report: {report}\n\nProject files:\n{files}"}]
     system = PROMPT_FILE.read_text(encoding="utf-8")
+    edited = False
     while result["turns"] < MAX_TURNS:
         result["turns"] += 1
         extra = {} if MODEL.startswith("claude-haiku-4-5") else {"output_config": {"effort": "medium"}}  # Haiku 4.5 rejects effort
@@ -222,6 +224,7 @@ def solve_task(task_id: str, report: str, work: Path) -> dict:
             result["summary"] = next((b.text for b in response.content if b.type == "text"), "")
             return result
         tool_results = []
+        suite_passed = False
         for block in response.content:
             if block.type != "tool_use":
                 continue
@@ -229,8 +232,17 @@ def solve_task(task_id: str, report: str, work: Path) -> dict:
                 content, is_error = HANDLERS[block.name](work, **block.input), False
             except Exception as exc:  # report tool failures back to the model, don't crash the run
                 content, is_error = f"Error: {exc}", True
+            if not is_error and block.name in ("edit_file", "write_file"):
+                edited = True
+            if block.name == "run_tests" and not block.input.get("pattern") and content.startswith("PASSED"):
+                suite_passed = True
             tool_results.append({"type": "tool_result", "tool_use_id": block.id, "content": content, "is_error": is_error})
         messages.append({"role": "user", "content": tool_results})
+        if suite_passed and edited:  # full suite green after an edit: done, skip the verify/summary turn
+            result["stop"] = "suite_passed"
+            text = "".join(b.text for b in response.content if b.type == "text")
+            result["summary"] = text or "Fixed the bug; full test suite passes."
+            return result
     result["stop"] = "max_turns"
     return result
 
