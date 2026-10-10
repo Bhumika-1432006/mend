@@ -51,8 +51,8 @@ worker agent ──runs 29 tasks──▶ neatlogs traces every model call and t
 | 3 | Test-first workflow; stop as soon as the suite passes | 29 → 29 / 29 | 894,839 → 618,906 (−30.8%) | `931ea51` | [diagnosis](runs/2026-10-10T10-30-26-after.diagnosis.md) |
 | 4 | Loop hands the worker the file list up front and finishes automatically once the full suite passes after an edit | 29 → 29 / 29 | 618,906 → 432,858 (−30.1%) | [`7e2148e`](https://entire.io/gh/thegoodengineers/mend/commit/7e2148e201fdaa9b2b3f921d1f2651950f537205) (Entire checkpoint) | [diagnosis](runs/2026-10-10T10-41-18-after.diagnosis.md) |
 
-Round records: [`runs/*.round.json`](runs/). Rounds 2 and 3 were run back to back with
-`python -m mend.supervisor <run> --rounds 2`; round 4 ran from a clean runner clone. Each "after" figure is a single run.
+Round records: the `*.round.json` files in [`runs/`](runs/). Rounds 2 and 3 were run back to back with
+`python -m mend.supervisor <run> --rounds 2`; round 4 ran from a clean runner clone. Rounds 2-3 "after" figures are single runs. The worker after round 4 was run three times: 29/29 each time ([10-59-46](runs/2026-10-10T10-59-46-after.json) 432,858, [11-13-11](runs/2026-10-10T11-13-11.json) 451,105, [11-18-45](runs/2026-10-10T11-18-45.json) 456,563 tokens). **Caveat:** the supervisor learns from the same 29 tasks it is scored on, and round 3's prompt includes a rule for hanging test suites learned from task 29; a held-out set it never sees is being run to check generalisation.
 
 **The first bug Mend found in itself.** The worker read only the first 200 lines of the
 233-line `ledger.py`, then rewrote the whole file to change one word. That silently deleted
@@ -91,8 +91,10 @@ created from a separate clean clone that only runs the supervisor (round 4 onwar
 
 - **neatlogs:** tracing (Python SDK, `wrap()` + `@neatlogs.span`) and reading traces back over
   the neatlogs MCP server. The traces are the supervisor's input.
-- **Entire:** Claude Code hooks plus `commit_linking: always`, so every self-fix commit links
-  to the session that wrote it.
+- **Entire:** Claude Code hooks plus `commit_linking: always` link each self-fix commit to the
+  Claude Code session that wrote it. Publicly available today: round 4's checkpoint (the earlier
+  ones were removed because they also contained the lead's own chat; their commits still carry
+  `Entire-Checkpoint` trailers that now point nowhere).
 - **cfo.ai:** pricing, costs, revenue and runway, from our measured cost per repair round.
 - **Claude:** Haiku 4.5 as the worker, Opus 5.5 as the supervisor, Claude Code for patches.
 
