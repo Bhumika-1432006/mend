@@ -185,7 +185,7 @@ Not done / blocked:
 - Six GitHub issues created and assigned (Bhumika: #1 report polish, #2 demo mode, #3 video;
   Abhijeet: #4 README evidence, #5 cfo.ai plan, #6 posts). First report page committed.
 
-### 2026-10-10 ~16:30 IST - business plan, repeat runs, idea check
+### 2026-10-10 ~15:45 IST - business plan, repeat runs, idea check
 - cfo.ai: the builder built the model in cfo.ai (free account) and exported it:
   `docs/business-plan-cfo-ai.xlsx`, summary in `docs/business-plan.md`. Finding: 31% gross
   margin at $49/team with 20 rounds at $1.50 (estimate); base runway ends May 2027. The event
@@ -200,7 +200,7 @@ Not done / blocked:
   restarted afterwards.
 - Supervisor can now run several rounds unattended (`--rounds N`, stops at the first revert).
 
-### 2026-10-10 ~17:30 IST - two more self-repair rounds, repeat runs, new site, transcript clean-up
+### 2026-10-10 ~16:25 IST - two more self-repair rounds, repeat runs, new site, transcript clean-up
 - Baseline repeats of the original worker (commit 13defdb): 26/28 and 27/28 (copied in as
   `*-v0.json`). Original worker over 3 runs: 27, 26, 27 of 28, mean 946,860 tokens; task 23
   failed in all 3. Worker after round 1, 3 runs: 28, 28, 28, mean 875,953 tokens (-7.5%);
@@ -220,7 +220,7 @@ Not done / blocked:
   (`entire disable --local`). From now on, checkpoints come from a separate clean clone that runs
   the supervisor, so they contain only the supervisor's own Claude Code session.
 
-### 2026-10-10 ~18:45 IST - round 4 from the clean runner, README, Editions-style site, regression guards
+### 2026-10-10 ~16:40 IST - round 4 from the clean runner, README, Editions-style site, regression guards
 - Round 4 (from the clean runner clone) kept: commit `7e2148e`, the worker loop finishes as soon
   as the full suite passes after an edit; 29/29, tokens 618,906 -> 432,858 (-30.1%). Its Entire
   checkpoint `01M4JQG23JYXJ34SHA46MCGMV2` holds only the supervisor's own session (checked: no
@@ -234,7 +234,7 @@ Not done / blocked:
   neatHack projects into a private notes folder outside the repo; an Analyst will rank
   improvements; the lead's agent builds. Video moved to submission day.
 
-### 2026-10-10 ~20:30 IST - held-out test, live recording, verification in CI, repair memory
+### 2026-10-10 ~17:25 IST - held-out test, live recording, verification in CI, repair memory
 - Scout (background agent) catalogued 69 neatHack projects from public GitHub/X; Analyst ranked
   improvements (private notes outside the repo). Acted on: held-out set, honest README caveats,
   rejected-patch records, repair memory, verify + CI, judges' block, post drafts.
@@ -251,6 +251,44 @@ Not done / blocked:
 - Supervisor: repair memory (history of kept/reverted/rejected fixes, enriched with `entire
   checkpoint explain`), and guard-rejected patches now leave a round record. Round 5 running.
 - Draft posts in `docs/posts.md` (8 drafts with real numbers); only 1 posted so far.
+
+### 2026-10-10 ~17:55 IST - round 5, real-world target, entire-graph, log time fix
+- Correction: four earlier entry headings had wrong times (estimated, not checked); they now
+  match the commit times of the log updates (15:45, 16:25, 16:40, 17:25 IST).
+- Round 5 (clean runner) kept: commit `c07f702`, the loop re-runs the full suite after any
+  successful edit; 29/29, tokens 456,563 -> 347,960 (-23.8%). It created its own neatlogs guard
+  "Mend: slow solve (6+ turns)" (matched 5 spans). Its checkpoint contains only the supervisor's
+  session (checked).
+- Measured cost (run-file tokens x list price): cost per task $0.040 -> $0.015 across rounds 1-5;
+  business plan updated. The supervisor now records its diagnosis call's token usage per round.
+- Real-world held-out target: `realworld/inflection` (inflection 0.5.1, MIT, unmodified, 455 own
+  tests). 8 planted bugs its tests catch (2 dropped because its tests miss them). Original vs
+  current worker runs in progress.
+- entire-graph v0.4.0 installed and `entire graph init-agents` run in the clean runner, so the
+  Claude Code session that writes each self-fix locates code via Entire's graph.
+- Second Scout pass running (changes since the 17:30 scan).
+
+### 2026-10-10 ~18:50 IST - real-world result, neatroots second opinion, Scout pass 2
+- Real-world held-out result (inflection 0.5.1, 8 bugs, never seen by the supervisor): original
+  worker 2/8 and 3/8 (mean 1,462,537 tokens), worker after 5 rounds 8/8 and 8/8 (mean 268,926,
+  -81.6%). Checked a failed original trace first: whole-file rewrites of the 426-line module.
+  `mend.verify` caught a rounding typo in the README (268,927 vs 268,926) before it was committed.
+- neatroots 0.2.6 (neatlogs' local checker) installed in WSL. Both workers ran 4 tasks against
+  it (original 2/4, repaired 4/4). Its built-in rules flagged nothing in either; a custom count
+  rule on whole-file write_file spans flags all 4 original runs and none of the repaired ones
+  (`evidence/neatroots-check.md`).
+- Scout pass 2 (17:51-18:10 IST): 3 rivals now have demo videos; firstrun strongest on Entire
+  (Trails, Brain, upstream PRs); new strong entry nightwatch-agent; neatlogs released neatroots.
+- Post drafts now include a LinkedIn version (#9). Still 1 post published.
+
+### 2026-10-10 ~19:05 IST - round 6 reverted by the gate; a supervisor bug fixed
+- Round 6 (clean runner): proposed letting edit_file take a list of edits; re-run 29/29 but tokens
+  347,960 -> 361,174 (+3.8%), so the supervisor reverted it automatically (`49c99e2` reverted by
+  `b5e788d`). First public "no" from the gate.
+- Bug found: `git revert` also deleted the round's diagnosis (committed with the patch). Restored it
+  from `49c99e2`; the supervisor now re-adds the diagnosis after every revert.
+- First measured diagnosis cost: Claude Opus 5.5, 20,954 in / 2,394 out tokens, ~$0.13. A full repair
+  round is now ~$0.57 (diagnosis + $0.44 re-run) vs the $1.50 assumed in the cfo.ai model.
 
 ## Demo
 pending

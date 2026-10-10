@@ -174,7 +174,10 @@ def diagnose_failures(run_id: str) -> dict:
         messages=[{"role": "user", "content": "\n\n".join(parts)}],
         output_config={"effort": "high", "format": {"type": "json_schema", "schema": DIAGNOSIS_SCHEMA}},
     )
-    return json.loads(next(b.text for b in response.content if b.type == "text"))
+    diagnosis = json.loads(next(b.text for b in response.content if b.type == "text"))
+    diagnosis["usage"] = {"model": MODEL, "input_tokens": response.usage.input_tokens,
+                          "output_tokens": response.usage.output_tokens}
+    return diagnosis
 
 
 def write_diagnosis(run_id: str, diagnosis: dict) -> str:
@@ -184,6 +187,10 @@ def write_diagnosis(run_id: str, diagnosis: dict) -> str:
     text = (f"# Diagnosis of run {run_id}\n\n| Task | Failing step | Cause | General weakness |\n|---|---|---|---|\n{rows}\n\n"
             f"## Chosen fix: {fix['title']}\n\nFile: `{fix['target_file']}`\n\n{fix['instructions']}\n\n"
             f"Why it is general: {fix['why_general']}\n")
+    if fix.get("guard"):
+        g = fix["guard"]
+        text += (f"\n## Proposed neatlogs regression guard\n\n`{g['display_name']}`: regex `{g['output_pattern']}` on the "
+                 f"output of `{g['span_name']}` spans. {g['description']}\n")
     path = RUNS / f"{run_id}.diagnosis.md"
     path.write_text(text, encoding="utf-8")
     return str(path.relative_to(ROOT))
@@ -243,10 +250,15 @@ def one_round(run_id: str) -> dict:
         after["passed"] == before["passed"] and tokens(after) <= (1 - TOKEN_SAVING) * tokens(before))
     if not kept:
         subprocess.run(["git", "revert", "--no-edit", "HEAD"], cwd=ROOT, check=True, capture_output=True)
+        # The revert also removed the diagnosis committed with the patch; keep it, it is the evidence of why.
+        subprocess.run(["git", "checkout", commit, "--", diagnosis_file], cwd=ROOT, check=True)
+        subprocess.run(["git", "commit", "-q", "-m", f"chore: keep the diagnosis of reverted round {run_id}"],
+                       cwd=ROOT, check=True)
     record = {"before": run_id, "before_passed": before["passed"], "after": after["run_id"],
               "after_passed": after["passed"], "total": after["total"],
               "before_tokens": tokens(before), "after_tokens": tokens(after), "commit": commit, "kept": kept,
-              "diagnosis": diagnosis_file, "title": diagnosis["fix"]["title"]}
+              "diagnosis": diagnosis_file, "title": diagnosis["fix"]["title"],
+              "diagnosis_usage": diagnosis.get("usage")}
     if kept:  # leave a neatlogs detection behind so this failure is flagged if it ever comes back
         try:
             record["guard"] = detections.create(diagnosis["fix"]["guard"], detections.group_id())

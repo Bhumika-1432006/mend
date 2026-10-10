@@ -1,0 +1,122 @@
+[
+  {
+    "id": "R01",
+    "difficulty": "medium",
+    "title": "11th, 12th, 13th wrong",
+    "report": "ordinalize(11) returns '11st' instead of '11th'; 12 and 13 are wrong too.",
+    "sandbox": "realworld/inflection",
+    "library": "inflection",
+    "edits": [
+      {
+        "file": "inflection/__init__.py",
+        "find": "if number % 100 in (11, 12, 13):",
+        "replace": "if number % 10 in (11, 12, 13):"
+      }
+    ]
+  },
+  {
+    "id": "R02",
+    "difficulty": "easy",
+    "title": "dasherize does nothing",
+    "report": "dasherize('puni_puni') returns 'puni_puni' instead of 'puni-puni'.",
+    "sandbox": "realworld/inflection",
+    "library": "inflection",
+    "edits": [
+      {
+        "file": "inflection/__init__.py",
+        "find": "return word.replace('_', '-')",
+        "replace": "return word.replace('-', '_')"
+      }
+    ]
+  },
+  {
+    "id": "R03",
+    "difficulty": "easy",
+    "title": "humanize glues words together",
+    "report": "humanize('employee_salary') returns 'Employeesalary' instead of 'Employee salary'.",
+    "sandbox": "realworld/inflection",
+    "library": "inflection",
+    "edits": [
+      {
+        "file": "inflection/__init__.py",
+        "find": "word = word.replace('_', ' ')",
+        "replace": "word = word.replace('_', '')"
+      }
+    ]
+  },
+  {
+    "id": "R04",
+    "difficulty": "medium",
+    "title": "lowerCamelCase broken",
+    "report": "camelize('device_type', False) returns 'DeviceType'; it should be 'deviceType'.",
+    "sandbox": "realworld/inflection",
+    "library": "inflection",
+    "edits": [
+      {
+        "file": "inflection/__init__.py",
+        "find": "return string[0].lower() + camelize(string)[1:]",
+        "replace": "return string[0].upper() + camelize(string)[1:]"
+      }
+    ]
+  },
+  {
+    "id": "R06",
+    "difficulty": "medium",
+    "title": "transliterate leaves question marks",
+    "report": "transliterate('\u00c6r\u00f8sk\u00f8bing') returns question marks instead of dropping the characters.",
+    "sandbox": "realworld/inflection",
+    "library": "inflection",
+    "edits": [
+      {
+        "file": "inflection/__init__.py",
+        "find": "return normalized.encode('ascii', 'ignore').decode('ascii')",
+        "replace": "return normalized.encode('ascii', 'replace').decode('ascii')"
+      }
+    ]
+  },
+  {
+    "id": "R07",
+    "difficulty": "hard",
+    "title": "Capitalised uncountables get pluralised",
+    "report": "pluralize('Sheep') returns 'Sheeps'. I think tableize is broken.",
+    "sandbox": "realworld/inflection",
+    "library": "inflection",
+    "edits": [
+      {
+        "file": "inflection/__init__.py",
+        "find": "if not word or word.lower() in UNCOUNTABLES:",
+        "replace": "if not word or word in UNCOUNTABLES:"
+      }
+    ]
+  },
+  {
+    "id": "R09",
+    "difficulty": "hard",
+    "title": "Digits break underscore",
+    "report": "tableize on model names that contain digits gives wrong table names. Probably pluralize again.",
+    "sandbox": "realworld/inflection",
+    "library": "inflection",
+    "edits": [
+      {
+        "file": "inflection/__init__.py",
+        "find": "word = re.sub(r\"([a-z\\d])([A-Z])\", r'\\1_\\2', word)",
+        "replace": "word = re.sub(r\"([a-z])([A-Z])\", r'\\1_\\2', word)"
+      }
+    ]
+  },
+  {
+    "id": "R10",
+    "difficulty": "hard",
+    "title": "Leading separator kept",
+    "report": "parameterize('  Hello world') starts with a dash.",
+    "sandbox": "realworld/inflection",
+    "library": "inflection",
+    "edits": [
+      {
+        "file": "inflection/__init__.py",
+        "find": "string = re.sub(r\"(?i)^{sep}|{sep}$\".format(sep=re_sep), '', string)",
+        "replace": "string = re.sub(r\"(?i){sep}$\".format(sep=re_sep), '', string)"
+      }
+    ]
+  }
+]

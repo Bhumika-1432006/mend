@@ -45,5 +45,6 @@ $1 per million input tokens, $5 per million output tokens):
 | Held-out, after 4 rounds ([11-30-57](../runs/2026-10-10T11-30-57-heldout.json)) | 10/10 | 146,059 / 7,729 | $0.19 | $0.019 |
 
 So the cost of re-running a suite in a repair round fell by about 61% ($1.12 -> $0.44). The
-supervisor's diagnosis call (Claude Opus 5.5) is not yet measured separately; the cfo.ai model's
-$0.38 for it remains an estimate. Next step: rebuild the cfo.ai model with these measured costs.
+supervisor's diagnosis call was measured in round 6 ([round record](../runs/2026-10-10T13-08-47-after.round.json)):
+Claude Opus 5.5, 20,954 input / 2,394 output tokens = about $0.13 at $4 / $20 per million. A whole
+repair round therefore costs about $0.57 today, against the $1.50 the cfo.ai model assumed. Next step: rebuild the cfo.ai model with these measured costs.

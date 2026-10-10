@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SANDBOX = ROOT / "sandbox"
 TASKS_FILE = ROOT / "tasks" / "tasks.json"
 HELDOUT_FILE = ROOT / "tasks" / "heldout.json"  # never shown to the supervisor
+REALWORLD_FILE = ROOT / "tasks" / "realworld.json"  # bugs in a real open-source library; never shown either
 
 
 def load_tasks(path: Path = TASKS_FILE) -> list[dict]:
@@ -23,7 +24,8 @@ def load_tasks(path: Path = TASKS_FILE) -> list[dict]:
 def prepare(task: dict) -> Path:
     """A fresh temp copy of the sandbox with the task's bug applied."""
     work = Path(tempfile.mkdtemp(prefix=f"mend-{task['id']}-"))
-    shutil.copytree(SANDBOX, work, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__", ".pytest_cache"))
+    source = ROOT / task["sandbox"] if task.get("sandbox") else SANDBOX
+    shutil.copytree(source, work, dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__", ".pytest_cache"))
     for edit in task["edits"]:
         path = work / edit["file"]
         text = path.read_text(encoding="utf-8")
@@ -46,10 +48,12 @@ def run_tests(work: Path, pattern: str = "", timeout: int = 60) -> tuple[bool, s
 
 
 def check() -> bool:
-    ok, out = run_tests(SANDBOX)
-    print(f"correct sandbox: {'PASS' if ok else 'FAIL'}")
-    good = ok
-    for task in load_tasks() + load_tasks(HELDOUT_FILE):
+    good = True
+    for root in (SANDBOX, ROOT / "realworld" / "inflection"):
+        ok, _ = run_tests(root)
+        print(f"correct {root.name}: {'PASS' if ok else 'FAIL'}")
+        good &= ok
+    for task in load_tasks() + load_tasks(HELDOUT_FILE) + load_tasks(REALWORLD_FILE):
         work = prepare(task)
         passed, _ = run_tests(work)
         shutil.rmtree(work, ignore_errors=True)

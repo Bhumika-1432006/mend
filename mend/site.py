@@ -9,6 +9,7 @@ import json
 import re
 import sys
 
+from mend.chart import dumbbell
 from mend.demo import demo_block
 from mend.report import REPO, load_rounds, load_runs
 from mend.tasks import ROOT
@@ -53,10 +54,13 @@ def facts() -> dict:
         d = (ROOT / r["diagnosis"].replace("\\", "/")).read_text(encoding="utf-8")
         m = re.search(r"## Chosen fix: (.+)", d)
         round_list.append({**r, "title": m.group(1) if m else "", "diagnosis_file": r["diagnosis"].replace("\\", "/")})
-    held = [r for r in runs.values() if r.get("heldout")]
+    real = [r for r in runs.values() if r.get("realworld")]
+    real_before = [r for r in real if r["worker_commit"] == "13defdb"]
+    real_after = [r for r in real if r["worker_commit"] != "13defdb"]
+    held = [r for r in runs.values() if r.get("heldout") and not r.get("realworld")]
     held_before = [r for r in held if r["worker_commit"] == "13defdb"]
     held_after = [r for r in held if r["worker_commit"] != "13defdb"]
-    return {"rounds": round_list, "first": first, "story": story, "haiku": haiku, "opus": opus, "held_before": held_before, "held_after": held_after,
+    return {"rounds": round_list, "first": first, "story": story, "haiku": haiku, "opus": opus, "held_before": held_before, "held_after": held_after, "real_before": real_before, "real_after": real_after,
             "before_runs": before_runs, "after_runs": after_runs,
             "runs_total": len(full), "tasks_total": max((r["total"] for r in full), default=0)}
 
@@ -85,7 +89,7 @@ def render() -> str:
             chain.insert(0, next(r for r in kept if r["after"] == chain[0]["before"]))
         start = chain[0]
         delta = (last["after_tokens"] - start["before_tokens"]) / start["before_tokens"] * 100
-        hero_stat = (f'<div class="stat"><span class="k">{len(kept)} self-repair rounds · all kept on measured results</span>'
+        hero_stat = (f'<div class="stat"><span class="k">{len(kept)} self-repair rounds kept · {len(f["rounds"]) - len(kept)} reverted by the gate</span>'
                      f'<span class="big">{delta:+.0f}%<em> tokens</em></span>'
                      f'<span class="sub">latest chain of {len(chain)} rounds: {start["before_passed"]}/{start["total"]} → {last["after_passed"]}/{last["total"]} tasks solved, '
                      f'{start["before_tokens"]:,} → {last["after_tokens"]:,} tokens (single runs)</span>'
@@ -139,6 +143,7 @@ def render() -> str:
 <section id="rounds"><div class="wrap">
   <p class="eyebrow">Every self-repair round</p><h2>Each fix was diagnosed from traces and written by the agent.</h2>
   <p class="sub">A round keeps its patch only if more tasks pass, or the same tasks pass with at least 15% fewer tokens. Each fix is a commit written by Claude Code. From round 4 the supervisor runs in a clean clone, and Entire links each fix to the session that wrote it.</p>
+  <div class="card" style="margin:28px 0 8px;overflow-x:auto">{dumbbell(f["rounds"])}</div>
   <div class="tablewrap"><table><tr><th>#</th><th>What Mend changed in itself</th><th>Solved</th><th>Tokens</th><th>Result</th><th>Commit</th></tr>{round_rows}</table></div>
 </div></section>"""
 
@@ -154,6 +159,20 @@ def render() -> str:
 </div></section>"""
     else:
         heldout_html = ""
+
+    if f["real_before"] and f["real_after"]:
+        rb = sum(tokens(r) for r in f["real_before"]) / len(f["real_before"])
+        ra = sum(tokens(r) for r in f["real_after"]) / len(f["real_after"])
+        real_html = f"""
+<section id="realworld"><div class="wrap">
+  <p class="eyebrow">Real-world test: an open-source library it never saw</p><h2>Beyond our sandbox.</h2>
+  <p class="sub">{f["real_before"][0]["total"]} bugs planted in <a class="link" href="{REPO}/tree/main/realworld/inflection">inflection</a>
+  (MIT, unmodified, 455 of its own tests). Never shown to the supervisor. Original worker against the self-repaired one, each run twice.
+  Mean tokens per run changed by {(ra - rb) / rb * 100:+.1f}%.</p>
+  <div class="ba two-col">{repeat_card("Original worker", f["real_before"], None, "bad")}{repeat_card("After self-repair", f["real_after"], None, "ok")}</div>
+</div></section>"""
+    else:
+        real_html = ""
 
     def run_row(r):
         return (f"<tr><td>{esc(r['run_id'][5:16].replace('T', ' '))}</td><td>{esc(r['model'].replace('claude-', ''))}</td>"
@@ -251,6 +270,7 @@ footer{{padding:48px 0;color:var(--mute);font-size:14px}}
 {story_html}
 {repeat_html}
 {heldout_html}
+{real_html}
 {rounds_html}
 <section id="evidence"><div class="wrap">
   <p class="eyebrow">Evidence</p><h2>Every number comes from a run file.</h2>
@@ -258,6 +278,17 @@ footer{{padding:48px 0;color:var(--mute);font-size:14px}}
   stronger supervisor (Claude Opus 5.5). Each row links to data in <a class="link" href="{REPO}/tree/main/runs">runs/</a>.</p>
   <div class="tablewrap"><table><tr><th>Run (UTC)</th><th>Worker model</th><th>Worker version</th><th>Solved</th><th>Tokens</th></tr>{rows}</table></div>
   <p><a class="link" href="report.html">Open the full report: every task, every run, every diagnosis →</a></p>
+</div></section>
+
+<section id="verify"><div class="wrap">
+  <p class="eyebrow">Check it yourself</p><h2>Two minutes, no API keys.</h2>
+  <p class="sub">Every number on this page is recomputed from the raw run files. The same checks run on every push in
+  <a class="link" href="{REPO}/actions">GitHub Actions</a>.</p>
+  <div class="card" style="margin-top:24px;overflow-x:auto"><pre style="margin:0;font:14px/1.7 'JetBrains Mono',monospace">git clone {REPO}
+cd mend && python -m venv .venv && .venv/bin/pip install -e ".[dev]"
+python -m mend.verify        # recompute every README number from runs/*.json
+python -m mend.tasks --check # all 47 planted bugs break their test suites; correct code passes
+pytest -q                    # unit tests</pre></div>
 </div></section>
 
 <section id="tools"><div class="wrap">
