@@ -26,9 +26,15 @@ def load_rounds() -> list[dict]:
     return [json.loads(p.read_text(encoding="utf-8")) for p in sorted(RUNS.glob("*.round.json"))]
 
 
+# Commits whose Entire checkpoint is published (from the clean runner clone; earlier ones were removed).
+CHECKPOINTED = {"7e2148e"}
+
+
 def commit_links(sha: str) -> str:
-    return (f'<a href="{REPO}/commit/{esc(sha)}">{esc(sha)}</a> · '
-            f'<a href="https://entire.io/gh/thegoodengineers/mend/commit/{esc(sha)}">Entire checkpoint</a>')
+    link = f'<a href="{REPO}/commit/{esc(sha)}">{esc(sha)}</a>'
+    if sha[:7] in CHECKPOINTED:
+        link += f' · <a href="https://entire.io/gh/thegoodengineers/mend/commit/{esc(sha)}">Entire checkpoint</a>'
+    return link
 
 
 def render() -> str:
@@ -64,21 +70,29 @@ def render() -> str:
     )
     return f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>Mend report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@800&family=Instrument+Serif:ital@1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{{--bg:#0f1115;--card:#171a21;--ink:#e8eaee;--mute:#8a919e;--line:#262a33;--ok:#3ecf8e;--bad:#f16b6b}}
-body{{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,Segoe UI,sans-serif}}
-main{{max-width:1100px;margin:auto;padding:32px 16px}}
-h1{{margin:0;font-size:28px}} p.sub{{color:var(--mute);margin:4px 0 24px}}
-section{{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:20px;overflow-x:auto}}
-h2{{font-size:16px;margin:0 0 12px}} table{{border-collapse:collapse;width:100%}}
-th,td{{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;white-space:nowrap}}
-td.ok{{color:var(--ok)}} td.bad{{color:var(--bad)}} td.na{{color:var(--mute)}}
-small{{color:var(--mute);margin-left:4px}} a{{color:#8ab4ff}}
-pre{{white-space:pre-wrap;color:var(--mute);font-size:13px}} summary{{cursor:pointer;margin:6px 0}}
-</style></head><body><main>
-<h1>Mend</h1>
-<p class="sub">An agent that reads its own neatlogs traces, fixes its own code, and proves the fix with a re-run.
-Every number below comes from a run file in <a href="{REPO}/tree/main/runs">runs/</a>.</p>
+/* Same system as the landing page (mend/site.py): sage ground, paper cards, Inter Tight titles, serif italic sub-lines. */
+:root{{--bg:#e6e6dd;--card:#f4f4ee;--ink:#0f0f0d;--mute:#5d5d55;--line:#cbcbbf;--ok:#16794a;--bad:#b83a3a}}
+body{{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,sans-serif}}
+nav{{position:sticky;top:0;background:rgba(230,230,221,.88);backdrop-filter:blur(10px);z-index:5}}
+nav div{{max-width:1160px;margin:auto;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between}}
+nav a{{text-decoration:none;color:var(--mute);font-size:14px;margin-left:20px}} nav b{{font:800 17px 'Inter Tight',sans-serif;color:var(--ink)}}
+main{{max-width:1160px;margin:auto;padding:40px 24px 64px}}
+h1{{margin:0;font:800 clamp(44px,7vw,84px)/.95 'Inter Tight',sans-serif;letter-spacing:-.045em}}
+p.sub{{font:italic 400 22px/1.3 'Instrument Serif',Georgia,serif;color:var(--mute);margin:12px 0 32px;max-width:780px}}
+section{{background:var(--card);border-radius:22px;padding:24px;margin-bottom:22px;overflow-x:auto;box-shadow:0 1px 1px rgba(15,15,13,.04),0 14px 32px rgba(15,15,13,.06)}}
+h2{{font:800 26px 'Inter Tight',sans-serif;letter-spacing:-.02em;margin:0 0 14px}} table{{border-collapse:collapse;width:100%}}
+th,td{{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;white-space:nowrap}} th{{color:var(--mute);font-weight:500}}
+td.ok{{color:var(--ok);font-weight:600}} td.bad{{color:var(--bad);font-weight:600}} td.na{{color:var(--mute)}}
+small{{color:var(--mute);margin-left:6px;font:400 14px Inter,sans-serif;letter-spacing:0}} a{{color:var(--ink);text-underline-offset:3px}}
+pre{{white-space:pre-wrap;color:var(--ink);font-size:13px;background:var(--bg);border-radius:12px;padding:14px}} summary{{cursor:pointer;margin:8px 0;font-weight:600}}
+</style></head><body>
+<nav><div><a href="index.html" style="margin:0"><b>Mend</b></a><span><a href="index.html">Home</a><a href="{REPO}">GitHub</a></span></div></nav>
+<main>
+<h1>Full report</h1>
+<p class="sub">Every round, every task, every run, every diagnosis. All of it is generated from the run files in <a href="{REPO}/tree/main/runs">runs/</a>.</p>
 <section><h2>Self-repair rounds</h2><table><tr><th>Before</th><th>Passed</th><th>After</th><th>Passed</th><th>Tokens</th><th>Result</th><th>Patch</th></tr>{round_rows}</table></section>
 <section><h2>Tasks across runs <small>(pass/fail and turns; hover for trace id)</small></h2><table><tr><th>Task</th>{head}</tr>{''.join(grid)}<tr><th>Total</th>{totals}</tr></table></section>
 <section><h2>Diagnoses written by the supervisor</h2>{diagnoses or '<p>None yet.</p>'}</section>
