@@ -8,6 +8,8 @@ keeps the fix only if a full re-run gets better.** Built during
 [report.html](https://thegoodengineers.github.io/mend/report.html) · **Build log:**
 [hackathon.md](hackathon.md)
 
+**Demo video (2:09):** [`video/demo/mend-demo.mp4`](video/demo/mend-demo.mp4) · **Keep/revert rules:** [`docs/GATE.md`](docs/GATE.md)
+
 [![Mend website](docs/img/site-hero.png)](https://thegoodengineers.github.io/mend/)
 
 [![Live recording: original worker fails, repaired worker passes](docs/img/live-result.png)](video/live/mend-live.mp4)
