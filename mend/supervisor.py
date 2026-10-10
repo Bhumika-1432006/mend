@@ -1,0 +1,194 @@
+"""The supervisor: reads the worker's failing neatlogs traces, fixes the worker, proves it.
+
+    python -m mend.supervisor              # one round on the latest run file
+    python -m mend.supervisor <run_id>     # one round on a given run
+
+Round: failed traces (MCP) -> diagnosis (Claude, structured JSON) -> one general patch to the
+worker (headless Claude Code, so Entire can link the session to the commit) -> guard + commit
+-> re-run the suite -> keep if more tasks pass, else git revert.
+"""
+
+import json
+import os
+import subprocess
+import sys
+
+import neatlogs
+
+from mend.suite import RUNS, git, run_suite
+from mend.tasks import ROOT, load_tasks
+from mend.traces import get_trace, span_lines
+
+MODEL = os.environ.get("MEND_MODEL", "claude-opus-5-5")
+ALLOWED_FILES = {"mend/worker.py", "mend/prompts/worker.md"}
+# Words that would mean the patch hard-codes knowledge of specific planted bugs.
+TASK_SPECIFIC = ("money.py", "dates.py", "tax.py", "discounts.py", "invoice.py", "csv_import.py",
+                 "weekday", "coupon", "gst", "ROUND_HALF")
+SPAN_TEXT_LIMIT = 700
+
+DIAGNOSIS_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "failures": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "task_id": {"type": "string"},
+                    "failing_step": {"type": "string", "description": "the span where it went wrong, e.g. 'turn 3 write_file'"},
+                    "cause": {"type": "string"},
+                    "general_weakness": {"type": "string", "description": "the worker behaviour behind it, phrased so it applies to any bug"},
+                },
+                "required": ["task_id", "failing_step", "cause", "general_weakness"],
+                "additionalProperties": False,
+            },
+        },
+        "fix": {
+            "type": "object",
+            "properties": {
+                "title": {"type": "string", "description": "short commit-style title"},
+                "target_file": {"type": "string", "enum": sorted(ALLOWED_FILES)},
+                "instructions": {"type": "string", "description": "exact change to make, for a coding agent"},
+                "why_general": {"type": "string"},
+            },
+            "required": ["title", "target_file", "instructions", "why_general"],
+            "additionalProperties": False,
+        },
+    },
+    "required": ["failures", "fix"],
+    "additionalProperties": False,
+}
+
+SYSTEM = """You improve an AI coding agent (the "worker") by reading traces of its failed runs.
+The worker fixes bugs in a small Python library using four tools. You get its source, its
+system prompt, and for each failed task the bug report and the trace (spans in order, with
+inputs and outputs, truncated).
+
+Find where each run went wrong, group the failures by the worker behaviour that caused them,
+and propose ONE fix to the worker that addresses the most common cause. The fix must improve
+the worker in general - its prompt, tools or loop policy. It must never mention specific
+modules, functions or bugs of the library, and never special-case a task."""
+
+
+def _client():
+    from anthropic import Anthropic  # after neatlogs.init
+
+    return neatlogs.wrap(Anthropic())
+
+
+def trace_digest(trace: dict) -> str:
+    """Span tree plus each span's truncated input/output, in order."""
+    lines = span_lines(trace)
+    for s in trace.get("spans") or []:
+        if s.get("type") == "workflow":
+            continue
+        lines.append(f"--- {s.get('type')} {s.get('name')} [{s.get('status')}]")
+        lines.append(f"in:  {str(s.get('input_value', ''))[:SPAN_TEXT_LIMIT]}")
+        lines.append(f"out: {str(s.get('output_value', ''))[:SPAN_TEXT_LIMIT]}")
+    return "\n".join(lines)
+
+
+def latest_run_id() -> str:
+    return max(p.stem for p in RUNS.glob("*.json") if "." not in p.stem)
+
+
+@neatlogs.span(kind="WORKFLOW")
+def diagnose_failures(run_id: str) -> dict:
+    run = json.loads((RUNS / f"{run_id}.json").read_text(encoding="utf-8"))
+    reports = {t["id"]: t["report"] for t in load_tasks()}
+    failed = [t for t in run["tasks"] if not t["passed"]]
+    if not failed:
+        return {"failures": [], "fix": None}
+    parts = [
+        "## Worker source (mend/worker.py)\n" + (ROOT / "mend/worker.py").read_text(encoding="utf-8"),
+        "## Worker system prompt (mend/prompts/worker.md)\n" + (ROOT / "mend/prompts/worker.md").read_text(encoding="utf-8"),
+    ]
+    for t in failed:
+        header = f"## Failed task {t['task_id']} (stop={t.get('stop')}, turns={t.get('turns')})\nBug report: {reports[t['task_id']]}"
+        try:
+            body = trace_digest(get_trace(t["trace_id"])) if t.get("trace_id") else f"no trace: {t.get('error')}"
+        except Exception as exc:  # one unreadable trace should not block the diagnosis
+            body = f"trace unavailable: {exc}"
+        parts.append(f"{header}\n{body}")
+    response = _client().messages.create(
+        model=MODEL, max_tokens=16000, system=SYSTEM,
+        messages=[{"role": "user", "content": "\n\n".join(parts)}],
+        output_config={"effort": "high", "format": {"type": "json_schema", "schema": DIAGNOSIS_SCHEMA}},
+    )
+    return json.loads(next(b.text for b in response.content if b.type == "text"))
+
+
+def write_diagnosis(run_id: str, diagnosis: dict) -> str:
+    fix = diagnosis["fix"]
+    rows = "\n".join(f"| {f['task_id']} | {f['failing_step']} | {f['cause']} | {f['general_weakness']} |"
+                     for f in diagnosis["failures"])
+    text = (f"# Diagnosis of run {run_id}\n\n| Task | Failing step | Cause | General weakness |\n|---|---|---|---|\n{rows}\n\n"
+            f"## Chosen fix: {fix['title']}\n\nFile: `{fix['target_file']}`\n\n{fix['instructions']}\n\n"
+            f"Why it is general: {fix['why_general']}\n")
+    path = RUNS / f"{run_id}.diagnosis.md"
+    path.write_text(text, encoding="utf-8")
+    return str(path.relative_to(ROOT))
+
+
+def apply_patch(fix: dict, diagnosis_file: str) -> tuple[bool, str]:
+    """Let headless Claude Code edit the worker, then check the change stays in bounds."""
+    prompt = (f"Read {diagnosis_file}. Make exactly the change it describes under 'Chosen fix', "
+              f"editing only {fix['target_file']}. Keep the change small. Do not edit any other file, "
+              "do not run anything, and do not mention specific library modules or bugs.")
+    subprocess.run(["claude", "-p", prompt, "--allowedTools", "Read", "Edit", "--permission-mode", "acceptEdits"],
+                   cwd=ROOT, capture_output=True, text=True, timeout=600)
+    changed = set(git("diff", "--name-only").splitlines())
+    if not changed:
+        return False, "no change made"
+    if not changed <= ALLOWED_FILES:
+        return False, f"touched files outside the worker: {sorted(changed - ALLOWED_FILES)}"
+    diff = git("diff").lower()
+    added = "\n".join(l for l in diff.splitlines() if l.startswith("+"))
+    if any(word.lower() in added for word in TASK_SPECIFIC):
+        return False, "patch mentions specific library code (task-specific hack)"
+    tests = subprocess.run([sys.executable, "-m", "pytest", "-q", "tests/test_smoke.py", "tests/test_traces.py"],
+                           cwd=ROOT, capture_output=True, text=True)
+    if tests.returncode != 0:
+        return False, "worker no longer imports / unit tests fail"
+    return True, f"changed {sorted(changed)}"
+
+
+def one_round(run_id: str) -> dict:
+    if git("status", "--porcelain", "--untracked-files=no"):
+        sys.exit("commit or stash tracked changes first; the patch check compares against a clean tree")
+    before = json.loads((RUNS / f"{run_id}.json").read_text(encoding="utf-8"))
+    diagnosis = diagnose_failures(run_id)
+    if not diagnosis["fix"]:
+        print("nothing failed; nothing to fix")
+        return {"before": run_id, "kept": False, "reason": "no failures"}
+    diagnosis_file = write_diagnosis(run_id, diagnosis)
+    print(f"diagnosis -> {diagnosis_file}: {diagnosis['fix']['title']}")
+    ok, why = apply_patch(diagnosis["fix"], diagnosis_file)
+    if not ok:
+        subprocess.run(["git", "checkout", "--", *ALLOWED_FILES], cwd=ROOT)
+        print(f"patch rejected: {why}")
+        return {"before": run_id, "kept": False, "reason": why, "diagnosis": diagnosis_file}
+    subprocess.run(["git", "add", *ALLOWED_FILES, diagnosis_file], cwd=ROOT, check=True)
+    subprocess.run(["git", "commit", "-q", "-m", f"fix(worker): {diagnosis['fix']['title']}",
+                    "-m", f"Proposed by the Mend supervisor from neatlogs traces of run {run_id}; see {diagnosis_file}."],
+                   cwd=ROOT, check=True)
+    commit = git("rev-parse", "--short", "HEAD")
+    after = run_suite([t["task_id"] for t in before["tasks"]], label="after")
+    kept = after["passed"] > before["passed"]
+    if not kept:
+        subprocess.run(["git", "revert", "--no-edit", "HEAD"], cwd=ROOT, check=True, capture_output=True)
+    record = {"before": run_id, "before_passed": before["passed"], "after": after["run_id"],
+              "after_passed": after["passed"], "total": after["total"], "commit": commit, "kept": kept,
+              "diagnosis": diagnosis_file}
+    (RUNS / f"{after['run_id']}.round.json").write_text(json.dumps(record, indent=2), encoding="utf-8")
+    print(f"round: {before['passed']} -> {after['passed']} of {after['total']}; {'KEPT' if kept else 'REVERTED'} {commit}")
+    return record
+
+
+if __name__ == "__main__":
+    neatlogs.init(api_key=os.environ["NEATLOGS_API_KEY"], workflow_name="mend-self-repair")
+    try:
+        one_round(sys.argv[1] if len(sys.argv) > 1 else latest_run_id())
+    finally:
+        neatlogs.flush()
+        neatlogs.shutdown()
