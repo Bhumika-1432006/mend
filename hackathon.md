@@ -220,6 +220,20 @@ Not done / blocked:
   (`entire disable --local`). From now on, checkpoints come from a separate clean clone that runs
   the supervisor, so they contain only the supervisor's own Claude Code session.
 
+### 2026-10-10 ~18:45 IST - round 4 from the clean runner, README, Editions-style site, regression guards
+- Round 4 (from the clean runner clone) kept: commit `7e2148e`, the worker loop finishes as soon
+  as the full suite passes after an edit; 29/29, tokens 618,906 -> 432,858 (-30.1%). Its Entire
+  checkpoint `01M4JQG23JYXJ34SHA46MCGMV2` holds only the supervisor's own session (checked: no
+  account ID, IAM username, keys or interactive-chat content).
+- README rewritten with evidence links (issue #4); site redesigned in a light Editions style.
+- Regression guards (`mend/detections.py`): created 3 neatlogs regex detections in group
+  "Mend regression guards", each dry-run first with preview_detection against real spans:
+  test-suite timeout (3 spans), edit_file miss (5), turn limit (5). From now on each kept round's
+  diagnosis also proposes a guard, which Mend creates if it matches real spans.
+- Multi-agent mode requested by the builder: a background Scout collects public details of other
+  neatHack projects into a private notes folder outside the repo; an Analyst will rank
+  improvements; the lead's agent builds. Video moved to submission day.
+
 ## Demo
 pending
 
