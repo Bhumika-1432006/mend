@@ -125,6 +125,19 @@ Not done / blocked:
   95 tokens, cost $0.0019, workflow root + `claude-opus-5-5` LLM span. Evidence:
   `evidence/t02-first-traced-call.txt`. Blocker cleared.
 
+### 2026-10-10 ~14:10 IST - sandbox, worker v0, supervisor, baseline
+- Sandbox invoicing library (29 tests) and 20 planted bugs (5 easy, 12 medium, 3 hard);
+  `python -m mend.tasks --check`: every bug breaks the tests, the correct code passes.
+- Worker v0 (`mend/worker.py`, plain prompt, Claude Opus 5.5, effort medium, max 15 turns).
+  Task 01: PASS in 4 turns; its trace `0538d30d...` read back over MCP (4 LLM + 5 tool spans,
+  $0.0498 per neatlogs). A fresh trace answers "not found" for a short while; reader retries.
+- Supervisor written (`mend/supervisor.py`), unit-tested, **not yet run**.
+- **Baseline run `2026-10-10T08-37-19`: 20/20 passed** (146,115 input / 15,891 output tokens,
+  about $0.90 at list price, mean 15.7 s per task).
+- Problem for the demo: with nothing failing, there is nothing for the supervisor to repair.
+  Decision pending with the builder (harder tasks and/or a cheaper worker model).
+- Tests: `pytest` 4 files passing.
+
 ## Demo
 pending
 
