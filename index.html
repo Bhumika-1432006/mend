@@ -69,7 +69,7 @@ footer{padding:48px 0;color:var(--mute);font-size:14px}
   <div class="hero-grid">
     <div><p class="intro">Mend reads its own neatlogs traces, works out why it failed, patches its own code, and keeps
     the fix only if a full re-run gets better. Otherwise it reverts.</p>
-    <div class="cta"><a class="pill" href="?demo=1">&#9654; Watch it fix itself</a><a class="pill ghost" href="#evidence">See the evidence</a><a class="pill ghost" href="report.html">Full report</a></div></div>
+    <div class="cta"><a class="pill" href="#watch" onclick="document.getElementById('watch').showModal();document.getElementById('watchv').play();return false;">&#9654; Watch it fix itself</a><a class="pill ghost" href="?demo=1">Step through it</a><a class="pill ghost" href="#evidence">See the evidence</a><a class="pill ghost" href="report.html">Full report</a></div></div>
     <div class="stat"><span class="k">4 self-repair rounds · all kept on measured results</span><span class="big">-57%<em> tokens</em></span><span class="sub">latest chain of 3 rounds: 28/29 → 29/29 tasks solved, 1,005,203 → 432,858 tokens (single runs)</span><a class="link" href="#rounds">see every round →</a></div>
   </div>
 </div></header>
@@ -108,6 +108,13 @@ footer{padding:48px 0;color:var(--mute);font-size:14px}
   <div class="ba two-col"><div class="card bad"><span class="k">Before self-repair · 3 runs</span><span class="big">27, 26, 27<em> / 28</em></span><span class="sub">mean 946,860 tokens per run</span><span class="sub">task 23 passed in 0 of 3 runs</span></div><div class="card ok"><span class="k">After self-repair · 3 runs</span><span class="big">28, 28, 28<em> / 28</em></span><span class="sub">mean 875,953 tokens per run</span><span class="sub">task 23 passed in 3 of 3 runs</span></div></div>
 </div></section>
 
+<section id="heldout"><div class="wrap">
+  <p class="eyebrow">Held-out test: bugs the supervisor never saw</p><h2>It generalises.</h2>
+  <p class="sub">10 new planted bugs, never shown to the supervisor and never used in a diagnosis.
+  Original worker against the self-repaired one, each run twice. Mean tokens per run changed by -59.7%.</p>
+  <div class="ba two-col"><div class="card bad"><span class="k">Original worker · 2 runs</span><span class="big">9, 9<em> / 10</em></span><span class="sub">mean 388,977 tokens per run</span></div><div class="card ok"><span class="k">After self-repair · 2 runs</span><span class="big">10, 10<em> / 10</em></span><span class="sub">mean 156,587 tokens per run</span></div></div>
+</div></section>
+
 <section id="rounds"><div class="wrap">
   <p class="eyebrow">Every self-repair round</p><h2>Each fix was diagnosed from traces and written by the agent.</h2>
   <p class="sub">A round keeps its patch only if more tasks pass, or the same tasks pass with at least 15% fewer tokens. Each fix is a commit written by Claude Code. From round 4 the supervisor runs in a clean clone, and Entire links each fix to the session that wrote it.</p>
@@ -131,6 +138,11 @@ footer{padding:48px 0;color:var(--mute);font-size:14px}
 </div></section>
 
 <footer><div class="wrap">Mend · built during neatHack, 10–12 October 2026 · <a href="https://github.com/thegoodengineers/mend">github.com/thegoodengineers/mend</a></div></footer>
+<dialog id="watch" style="border:0;border-radius:22px;padding:0;max-width:min(1100px,94vw);background:#0f0f0d;box-shadow:0 40px 100px rgba(0,0,0,.35)">
+<video id="watchv" src="video/live/mend-live.mp4" controls playsinline preload="metadata" style="display:block;width:100%;height:auto"></video>
+<form method="dialog" style="position:absolute;top:10px;right:12px;margin:0"><button aria-label="Close" style="border:0;border-radius:999px;background:#f4f4ee;padding:6px 12px;font:600 14px Inter;cursor:pointer" onclick="document.getElementById('watchv').pause()">Close</button></form>
+<p style="margin:0;padding:10px 16px;color:#cbcbbf;font:13px Inter">Live recording at real speed: the original worker vs the self-repaired worker on the same task. Both runs traced in neatlogs. Narration is synthetic voice.</p>
+</dialog>
 <style>
 #demo{position:fixed;inset:0;background:rgba(230,230,221,.97);z-index:50;display:none;align-items:center;justify-content:center;padding:24px}
 #demo.on{display:flex} #demo .box{width:min(980px,100%);background:#f4f4ee;border-radius:24px;padding:32px;box-shadow:0 30px 80px rgba(15,15,13,.15)}

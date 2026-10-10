@@ -1,0 +1,30 @@
+[
+  {
+    "at": 0.5,
+    "text": "This is a live recording of Mend, at real speed. A customer reports: A customer's payment was applied to their newest invoice instead of the oldest one."
+  },
+  {
+    "at": 10.232000000000001,
+    "text": "First, the original worker."
+  },
+  {
+    "at": 34.28,
+    "text": "It rewrites the whole file to change one line, but it had only read part of it."
+  },
+  {
+    "at": 42.73,
+    "text": "The full test suite now fails. The rewrite deleted working code, and the worker spends its remaining turns chasing the damage."
+  },
+  {
+    "at": 77.11,
+    "text": "Mend's supervisor reads this run back from neatlogs, finds the step that went wrong, and patches its own worker with Claude Code. The patch is kept only because a full re-run got better."
+  },
+  {
+    "at": 88.91,
+    "text": "Same task, same model, the repaired worker."
+  },
+  {
+    "at": 102.67,
+    "text": "4 turns instead of 15. 17,847 tokens instead of 147,457. Fixed, and proven."
+  }
+]

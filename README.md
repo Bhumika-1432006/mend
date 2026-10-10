@@ -52,7 +52,7 @@ worker agent ──runs 29 tasks──▶ neatlogs traces every model call and t
 | 4 | Loop hands the worker the file list up front and finishes automatically once the full suite passes after an edit | 29 → 29 / 29 | 618,906 → 432,858 (−30.1%) | [`7e2148e`](https://entire.io/gh/thegoodengineers/mend/commit/7e2148e201fdaa9b2b3f921d1f2651950f537205) (Entire checkpoint) | [diagnosis](runs/2026-10-10T10-41-18-after.diagnosis.md) |
 
 Round records: the `*.round.json` files in [`runs/`](runs/). Rounds 2 and 3 were run back to back with
-`python -m mend.supervisor <run> --rounds 2`; round 4 ran from a clean runner clone. Rounds 2-3 "after" figures are single runs. The worker after round 4 was run three times: 29/29 each time ([10-59-46](runs/2026-10-10T10-59-46-after.json) 432,858, [11-13-11](runs/2026-10-10T11-13-11.json) 451,105, [11-18-45](runs/2026-10-10T11-18-45.json) 456,563 tokens). **Caveat:** the supervisor learns from the same 29 tasks it is scored on, and round 3's prompt includes a rule for hanging test suites learned from task 29; a held-out set it never sees is being run to check generalisation.
+`python -m mend.supervisor <run> --rounds 2`; round 4 ran from a clean runner clone. Rounds 2-3 "after" figures are single runs. The worker after round 4 was run three times: 29/29 each time ([10-59-46](runs/2026-10-10T10-59-46-after.json) 432,858, [11-13-11](runs/2026-10-10T11-13-11.json) 451,105, [11-18-45](runs/2026-10-10T11-18-45.json) 456,563 tokens). **Caveat:** the supervisor learns from the same 29 tasks it is scored on, and round 3's prompt includes a rule for hanging test suites learned from task 29; on a held-out set it never sees, it also improved (below).
 
 **The first bug Mend found in itself.** The worker read only the first 200 lines of the
 233-line `ledger.py`, then rewrote the whole file to change one word. That silently deleted
@@ -65,6 +65,27 @@ turns.
 |---|---|---|---|---|
 | Before self-repair (`13defdb`) | [09-15-17](runs/2026-10-10T09-15-17.json), [10-17-27-v0](runs/2026-10-10T10-17-27-v0.json), [10-28-58-v0](runs/2026-10-10T10-28-58-v0.json) | 27, 26, 27 | 946,860 | passed 0 of 3 |
 | After round 1 | [09-31-07](runs/2026-10-10T09-31-07-after.json), [09-40-55](runs/2026-10-10T09-40-55.json), [09-51-17](runs/2026-10-10T09-51-17.json) | 28, 28, 28 | 875,953 (−7.5%) | passed 3 of 3 |
+
+### Held-out test: 10 bugs the supervisor never saw
+
+[`tasks/heldout.json`](tasks/heldout.json) holds 10 more planted bugs. They are never shown to the
+supervisor (it refuses held-out runs) and no diagnosis or patch is based on them.
+
+| Worker | Runs | Solved | Mean tokens per run | Turns |
+|---|---|---|---|---|
+| Original (`13defdb`) | [11-25-59](runs/2026-10-10T11-25-59-heldout-v0.json), [11-32-56](runs/2026-10-10T11-32-56-heldout-v0.json) | 9, 9 of 10 | 388,977 | 83, 86 |
+| After 4 self-repair rounds | [11-30-57](runs/2026-10-10T11-30-57-heldout.json), [11-37-44](runs/2026-10-10T11-37-44-heldout.json) | 10, 10 of 10 | 156,587 (−59.7%) | 46, 48 |
+
+The original worker's held-out runs used `mend/worker.py` and `mend/prompts/worker.md` from
+`13defdb` on the current harness (noted in each run file as `worker_version`).
+
+### Live recording
+
+[`video/live/mend-live.mp4`](video/live/mend-live.mp4) (1:55, also on the website): the original and
+the repaired worker run task 23 live, replayed at real speed from event logs written during the
+runs ([`scripts/live_run.py`](scripts/live_run.py), [`video/live/make_video.py`](video/live/make_video.py)).
+Original: failed, 15 turns, 147,457 tokens (trace `1ef860cd`). Repaired: passed, 4 turns, 17,847
+tokens (trace `9b29c189`). Narration is synthetic voice.
 
 For reference, the same worker on Claude Opus 5.5 solved the first 20 tasks: 20/20, 162,006
 tokens ([run](runs/2026-10-10T08-37-19.json)).
