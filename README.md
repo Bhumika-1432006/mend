@@ -42,16 +42,17 @@ worker agent ──runs 29 tasks──▶ neatlogs traces every model call and t
 
 ## Results
 
-### Self-repair rounds (all three kept)
+### Self-repair rounds (all four kept)
 
 | # | What Mend changed in itself | Solved | Tokens | Commit | Diagnosis |
 |---|---|---|---|---|---|
 | 1 | Added an exact-replace `edit_file` tool; steered edits away from whole-file rewrites | 27 → 28 / 28 | 933,181 → 851,463 (−8.8%) | `e8a6baf` | [diagnosis](runs/2026-10-10T09-15-17.diagnosis.md) |
 | 2 | `edit_file` shows the current text of a near match on a miss; clearer line prefixes | 28 → 29 / 29 | 1,005,203 → 894,839 (−11.0%) | `f9dae91` | [diagnosis](runs/2026-10-10T10-17-27.diagnosis.md) |
 | 3 | Test-first workflow; stop as soon as the suite passes | 29 → 29 / 29 | 894,839 → 618,906 (−30.8%) | `931ea51` | [diagnosis](runs/2026-10-10T10-30-26-after.diagnosis.md) |
+| 4 | Loop hands the worker the file list up front and finishes automatically once the full suite passes after an edit | 29 → 29 / 29 | 618,906 → 432,858 (−30.1%) | [`7e2148e`](https://entire.io/gh/thegoodengineers/mend/commit/7e2148e201fdaa9b2b3f921d1f2651950f537205) (Entire checkpoint) | [diagnosis](runs/2026-10-10T10-41-18-after.diagnosis.md) |
 
 Round records: [`runs/*.round.json`](runs/). Rounds 2 and 3 were run back to back with
-`python -m mend.supervisor <run> --rounds 2`. Each "after" figure is a single run.
+`python -m mend.supervisor <run> --rounds 2`; round 4 ran from a clean runner clone. Each "after" figure is a single run.
 
 **The first bug Mend found in itself.** The worker read only the first 200 lines of the
 233-line `ledger.py`, then rewrote the whole file to change one word. That silently deleted
@@ -76,7 +77,7 @@ tokens ([run](runs/2026-10-10T08-37-19.json)).
 | The agent recovers from a failed action | [`evidence/t17-recovery-from-timeout.txt`](evidence/t17-recovery-from-timeout.txt): `run_tests` timed out after 60 s, then the worker found and fixed the infinite loop (task 29) |
 | Before/after with the numbers compared | the tables above; every row links to its run file |
 | Self-fixes are written by Claude Code and committed by the supervisor | commits `e8a6baf`, `f9dae91`, `931ea51` (`fix(worker): …`) |
-| Entire checkpoints | being regenerated from a clean runner clone; see note below |
+| Entire checkpoints | round 4: [checkpoint `01M4JQG23JYXJ34SHA46MCGMV2`](https://entire.io/gh/thegoodengineers/mend/commit/7e2148e201fdaa9b2b3f921d1f2651950f537205) on commit `7e2148e`, the supervisor's own Claude Code session; see note below |
 | Business plan with cfo.ai | [`docs/business-plan.md`](docs/business-plan.md), export [`docs/business-plan-cfo-ai.xlsx`](docs/business-plan-cfo-ai.xlsx) |
 | Code written during the hackathon | commit history; the first commit holds only plans written before the event, as the rules allow |
 | Building in public | [first #neatHack post](https://x.com/theintrodev/status/2108851736765141188) |
@@ -84,7 +85,7 @@ tokens ([run](runs/2026-10-10T08-37-19.json)).
 **Note on Entire checkpoints.** Entire captured the supervisor's headless Claude Code sessions
 as checkpoints, for example the session behind `e8a6baf`. Those checkpoints also included the
 lead's own interactive chat, so we removed them from the public repo. New checkpoints are
-created from a separate clean clone that only runs the supervisor. Links will be added here.
+created from a separate clean clone that only runs the supervisor (round 4 onwards).
 
 ## Built with
 

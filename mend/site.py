@@ -133,7 +133,7 @@ def render() -> str:
     rounds_html = f"""
 <section id="rounds"><div class="wrap">
   <p class="eyebrow">Every self-repair round</p><h2>Each fix was diagnosed from traces and written by the agent.</h2>
-  <p class="sub">A round keeps its patch only if more tasks pass, or the same tasks pass with at least 15% fewer tokens. Each fix is a commit written by Claude Code; Entire checkpoints for them are being regenerated from a clean runner.</p>
+  <p class="sub">A round keeps its patch only if more tasks pass, or the same tasks pass with at least 15% fewer tokens. Each fix is a commit written by Claude Code. From round 4 the supervisor runs in a clean clone, and Entire links each fix to the session that wrote it.</p>
   <div class="tablewrap"><table><tr><th>#</th><th>What Mend changed in itself</th><th>Solved</th><th>Tokens</th><th>Result</th><th>Commit</th></tr>{round_rows}</table></div>
 </div></section>"""
 
@@ -245,7 +245,7 @@ footer{{padding:48px 0;color:var(--mute);font-size:14px}}
   <p class="eyebrow">Built with</p><h2>neatlogs, Entire and cfo.ai, each doing real work.</h2>
   <div class="tools">
     <div class="tool card"><h3>neatlogs</h3><p>Traces every run. The supervisor reads those traces back over MCP to diagnose failures. The traces are the input, not decoration.</p><a class="link" href="{REPO}/tree/main/evidence">trace evidence →</a></div>
-    <div class="tool card"><h3>Entire</h3><p>Every fix Mend makes to itself is a Claude Code session linked to its commit as a checkpoint.</p><a class="link" href="{REPO}#evidence">checkpoint status →</a></div>
+    <div class="tool card"><h3>Entire</h3><p>Every fix Mend makes to itself is a Claude Code session linked to its commit as a checkpoint.</p><a class="link" href="{ENTIRE}7e2148e201fdaa9b2b3f921d1f2651950f537205">a clean self-fix checkpoint →</a></div>
     <div class="tool card"><h3>cfo.ai</h3><p>Prices Mend from measured cost per repair round. It showed our first price leaves a 31% margin, so pricing changes next.</p><a class="link" href="{REPO}/blob/main/docs/business-plan.md">business plan →</a></div>
   </div>
 </div></section>
