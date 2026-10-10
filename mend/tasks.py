@@ -13,10 +13,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SANDBOX = ROOT / "sandbox"
 TASKS_FILE = ROOT / "tasks" / "tasks.json"
+HELDOUT_FILE = ROOT / "tasks" / "heldout.json"  # never shown to the supervisor
 
 
-def load_tasks() -> list[dict]:
-    return json.loads(TASKS_FILE.read_text(encoding="utf-8"))
+def load_tasks(path: Path = TASKS_FILE) -> list[dict]:
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def prepare(task: dict) -> Path:
@@ -48,7 +49,7 @@ def check() -> bool:
     ok, out = run_tests(SANDBOX)
     print(f"correct sandbox: {'PASS' if ok else 'FAIL'}")
     good = ok
-    for task in load_tasks():
+    for task in load_tasks() + load_tasks(HELDOUT_FILE):
         work = prepare(task)
         passed, _ = run_tests(work)
         shutil.rmtree(work, ignore_errors=True)

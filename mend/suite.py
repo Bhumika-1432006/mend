@@ -2,6 +2,7 @@
 
     python -m mend.suite              # all 20 tasks
     python -m mend.suite 01 05 15     # selected tasks
+    python -m mend.suite --heldout    # the held-out tasks the supervisor never sees
 """
 
 import json
@@ -13,7 +14,7 @@ from datetime import datetime, timezone
 
 import neatlogs
 
-from mend.tasks import ROOT, load_tasks, prepare
+from mend.tasks import HELDOUT_FILE, ROOT, TASKS_FILE, load_tasks, prepare
 
 RUNS = ROOT / "runs"
 
@@ -22,16 +23,17 @@ def git(*args: str) -> str:
     return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True).stdout.strip()
 
 
-def run_suite(task_ids: list[str] | None = None, label: str = "") -> dict:
+def run_suite(task_ids: list[str] | None = None, label: str = "", heldout: bool = False) -> dict:
     from mend import worker  # imported after neatlogs.init (see worker docstring)
 
-    tasks = [t for t in load_tasks() if not task_ids or t["id"] in task_ids]
+    tasks = [t for t in load_tasks(HELDOUT_FILE if heldout else TASKS_FILE) if not task_ids or t["id"] in task_ids]
     run_id = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%S") + (f"-{label}" if label else "")
     run = {
         "run_id": run_id,
         "worker_commit": git("rev-parse", "--short", "HEAD"),
         "worker_dirty": bool(git("status", "--porcelain", "mend/worker.py", "mend/prompts")),
         "model": worker.MODEL,
+        "heldout": heldout,
         "tasks": [],
     }
     for task in tasks:
@@ -58,7 +60,9 @@ def run_suite(task_ids: list[str] | None = None, label: str = "") -> dict:
 if __name__ == "__main__":
     neatlogs.init(api_key=os.environ["NEATLOGS_API_KEY"], workflow_name="mend-worker")
     try:
-        run_suite(sys.argv[1:] or None)
+        args = [a for a in sys.argv[1:] if a != "--heldout"]
+        held = "--heldout" in sys.argv
+        run_suite(args or None, label="heldout" if held else "", heldout=held)
     finally:
         neatlogs.flush()
         neatlogs.shutdown()

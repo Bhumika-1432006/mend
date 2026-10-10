@@ -179,6 +179,8 @@ def one_round(run_id: str) -> dict:
     if git("status", "--porcelain", "--untracked-files=no"):
         sys.exit("commit or stash tracked changes first; the patch check compares against a clean tree")
     before = json.loads((RUNS / f"{run_id}.json").read_text(encoding="utf-8"))
+    if before.get("heldout"):
+        sys.exit("refusing to learn from a held-out run")
     diagnosis = diagnose_failures(run_id)
     if not diagnosis["fix"]:
         print("nothing failed; nothing to fix")

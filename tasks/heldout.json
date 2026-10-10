@@ -1,0 +1,132 @@
+[
+  {
+    "id": "H01",
+    "difficulty": "medium",
+    "title": "Split amounts wrong",
+    "report": "split_evenly(10.00, 3) returns amounts that don't add up to 10.00.",
+    "edits": [
+      {
+        "file": "invoicer/money.py",
+        "find": "base, extra = divmod(cents, parts)",
+        "replace": "extra, base = divmod(cents, parts)"
+      }
+    ]
+  },
+  {
+    "id": "H02",
+    "difficulty": "easy",
+    "title": "NET terms one day short",
+    "report": "Invoices on NET 30 terms are due a day too early.",
+    "edits": [
+      {
+        "file": "invoicer/dates.py",
+        "find": "return issued + timedelta(days=int(terms[4:]))",
+        "replace": "return issued + timedelta(days=int(terms[4:]) - 1)"
+      }
+    ]
+  },
+  {
+    "id": "H03",
+    "difficulty": "medium",
+    "title": "Tax not rounded to paise",
+    "report": "Tax on small amounts comes out with more than two decimal places.",
+    "edits": [
+      {
+        "file": "invoicer/tax.py",
+        "find": "return to_money(amount * RATES[category])",
+        "replace": "return to_money(amount) * RATES[category]"
+      }
+    ]
+  },
+  {
+    "id": "H04",
+    "difficulty": "easy",
+    "title": "Coupon bigger than the order",
+    "report": "A big coupon on a small order makes the discount larger than the order itself.",
+    "edits": [
+      {
+        "file": "invoicer/discounts.py",
+        "find": "return min(to_money(amount), subtotal)",
+        "replace": "return max(to_money(amount), subtotal)"
+      }
+    ]
+  },
+  {
+    "id": "H05",
+    "difficulty": "easy",
+    "title": "Zero-quantity lines accepted",
+    "report": "Invoices accept lines with quantity 0, which should be rejected.",
+    "edits": [
+      {
+        "file": "invoicer/invoice.py",
+        "find": "if line.quantity <= 0:",
+        "replace": "if line.quantity < 0:"
+      }
+    ]
+  },
+  {
+    "id": "H06",
+    "difficulty": "easy",
+    "title": "Imported descriptions have stray spaces",
+    "report": "Line descriptions imported from CSV keep the spaces around them.",
+    "edits": [
+      {
+        "file": "invoicer/csv_import.py",
+        "find": "description=row[\"description\"].strip(),",
+        "replace": "description=row[\"description\"],"
+      }
+    ]
+  },
+  {
+    "id": "H07",
+    "difficulty": "medium",
+    "title": "Unallocated credit inverted",
+    "report": "unallocated_credit shows money for customers who still owe us, and none for those who overpaid.",
+    "edits": [
+      {
+        "file": "invoicer/ledger.py",
+        "find": "return max(paid - billed, Decimal(\"0.00\"))",
+        "replace": "return max(billed - paid, Decimal(\"0.00\"))"
+      }
+    ]
+  },
+  {
+    "id": "H08",
+    "difficulty": "hard",
+    "title": "Receivables netted against credits",
+    "report": "Total receivables drop when a customer is in credit; credits must not be netted against debtors.",
+    "edits": [
+      {
+        "file": "invoicer/ledger.py",
+        "find": "if b > 0), Decimal(\"0.00\"))",
+        "replace": "if b != 0), Decimal(\"0.00\"))"
+      }
+    ]
+  },
+  {
+    "id": "H09",
+    "difficulty": "hard",
+    "title": "Balance as of a date misses same-day entries",
+    "report": "balance(as_of=...) ignores entries posted on the as_of date itself.",
+    "edits": [
+      {
+        "file": "invoicer/ledger.py",
+        "find": "if as_of is None or e.on <= as_of:",
+        "replace": "if as_of is None or e.on < as_of:"
+      }
+    ]
+  },
+  {
+    "id": "H10",
+    "difficulty": "hard",
+    "title": "Statement header wrong",
+    "report": "Customer statements start with the wrong header line.",
+    "edits": [
+      {
+        "file": "invoicer/ledger.py",
+        "find": "lines = [f\"Statement for {customer}\"]",
+        "replace": "lines = [f\"Statement: {customer}\"]"
+      }
+    ]
+  }
+]
