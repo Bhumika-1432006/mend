@@ -7,7 +7,7 @@ No task starts before the hackathon start time.
 ## Must
 - [ ] **T01 (A) Repo + skeleton.** `mend/` package, `pyproject.toml`, `.gitignore` (incl. `.env`),
   `README.md` stub, `pytest` runs. Files: repo root. Done: `pytest` exits 0 on an empty test.
-- [x] **T02 (A) neatlogs spike.** (10 Oct: `scripts/trace_check.py`; trace visible, but the Claude call itself failed on Anthropic credit - redo once credit exists.) Install the SDK per docs.neatlogs.com/sdk/python, init once at
+- [x] **T02 (A) neatlogs spike.** (10 Oct: `scripts/trace_check.py`; first call failed on Anthropic credit; after a new key, trace `f9d77cd0...` SUCCESS, 95 tokens, $0.0019.) Install the SDK per docs.neatlogs.com/sdk/python, init once at
   the entry point with a workflow name, one Claude call traced. Done: the trace is visible in
   the neatlogs dashboard (screenshot saved to `evidence/`).
 - [ ] **T03 (B) Entire spike.** `entire enable` in the repo; make one change with Claude Code;

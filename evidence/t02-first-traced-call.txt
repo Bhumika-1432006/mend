@@ -1,0 +1,5 @@
+# T02, 10 Oct 2026 13:59 IST: first successful traced Claude call, read back over MCP.
+# python scripts/trace_check.py, then mend.traces.get_trace(created_after=...)
+f9d77cd0556612b6931750bca1153691 trace_check status= success tokens= 95 cost= 0.0018549999999999999
+workflow trace_check [SUCCESS] 3308ms
+  llm claude-opus-5-5 [SUCCESS] 3296ms

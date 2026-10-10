@@ -117,6 +117,14 @@ Not done / blocked:
 - The saved key belongs to the neatlogs project "chotu's project" (checked with MCP `whoami`).
 - Tests: `pytest` 2 passed.
 
+### 2026-10-10 14:00 IST - Claude key fixed; first successful traced call
+- Two attempts failed: a `sk-ant-usr-` token was rejected (401 as API key and as bearer token),
+  then a key copied from a masked display (98 of 106 characters were dots). The builder then
+  created a real key in the Claude Console.
+- `scripts/trace_check.py` succeeded; read back over MCP: trace `f9d77cd0...` status=success,
+  95 tokens, cost $0.0019, workflow root + `claude-opus-5-5` LLM span. Evidence:
+  `evidence/t02-first-traced-call.txt`. Blocker cleared.
+
 ## Demo
 pending
 
