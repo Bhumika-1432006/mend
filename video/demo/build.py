@@ -100,8 +100,7 @@ def stills() -> dict[str, Path]:
                 else:
                     text = (HERE / vis[1]).read_text(encoding="utf-8")
                     text = re.sub(r"<[^>]+@[^>]+>", "", text)  # no email addresses on screen
-                    text = "
-".join(text.splitlines()[:18])
+                    text = "\n".join(text.splitlines()[:18])  # fits the frame
                     body = f'<p class="l">entire checkpoint explain c07f702 · real CLI output</p><pre>{html.escape(text)}</pre>'
                 card.set_content(CARD.replace("__BODY__", body))
                 card.wait_for_timeout(1200)
