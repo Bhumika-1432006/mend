@@ -24,3 +24,20 @@ def test_rounds_chain_kept_runs_and_stop_at_first_revert(monkeypatch):
     monkeypatch.setattr(sup, "one_round", fake_round)
     records = sup.rounds("r0", limit=5)
     assert seen == ["r0", "r0+", "r0++"] and [r["kept"] for r in records] == [True, True, False]
+
+
+def test_repair_history_lists_kept_reverted_and_rejected(tmp_path, monkeypatch):
+    import json
+    import mend.supervisor as sup
+    (tmp_path / "a.round.json").write_text(json.dumps({"title": "Add edit tool", "kept": True, "commit": "abc",
+        "before_passed": 27, "after_passed": 28, "total": 28, "before_tokens": 900, "after_tokens": 800}))
+    (tmp_path / "b.round.json").write_text(json.dumps({"title": "Shorter prompt", "kept": False, "commit": "def",
+        "before_passed": 29, "after_passed": 28, "total": 29, "before_tokens": 500, "after_tokens": 450}))
+    (tmp_path / "c.rejected.round.json").write_text(json.dumps({"title": "Hack", "rejected": True, "kept": False,
+        "reason": "patch mentions specific library code"}))
+    monkeypatch.setattr(sup, "RUNS", tmp_path)
+    monkeypatch.setattr(sup, "_entire_files", lambda sha: "mend/worker.py" if sha == "abc" else "")
+    lines = sup.repair_history().splitlines()
+    assert lines[0].startswith("- KEPT: Add edit tool") and "Entire checkpoint shows it changed mend/worker.py" in lines[0]
+    assert lines[1].startswith("- REVERTED: Shorter prompt")
+    assert lines[2] == "- REJECTED before running: Hack (reason: patch mentions specific library code)"

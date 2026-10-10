@@ -27,7 +27,7 @@ def load_rounds() -> list[dict]:
 
 
 # Commits whose Entire checkpoint is published (from the clean runner clone; earlier ones were removed).
-CHECKPOINTED = {"7e2148e"}
+CHECKPOINTED = {"7e2148e", "c07f702"}
 
 
 def commit_links(sha: str) -> str:
