@@ -2,6 +2,7 @@
 
     python -m mend.supervisor              # one round on the latest run file
     python -m mend.supervisor <run_id>     # one round on a given run
+    python -m mend.supervisor --rounds 3   # up to 3 rounds, stopping at the first revert
 
 Round: traces of failed and most wasteful runs (MCP) -> diagnosis (Claude, structured JSON) ->
 one general patch to the worker (headless Claude Code, so Entire can link the session to the
@@ -196,10 +197,26 @@ def one_round(run_id: str) -> dict:
     return record
 
 
+def rounds(run_id: str, limit: int) -> list[dict]:
+    """Repeat rounds: each kept fix's re-run is the next round's input. Stop at the first revert."""
+    records = []
+    for _ in range(limit):
+        record = one_round(run_id)
+        records.append(record)
+        if not record["kept"]:
+            break
+        run_id = record["after"]
+    return records
+
+
 if __name__ == "__main__":
+    # python -m mend.supervisor [run_id] [--rounds N]
+    args = sys.argv[1:]
+    limit = int(args[args.index("--rounds") + 1]) if "--rounds" in args else 1
+    positional = [a for i, a in enumerate(args) if a != "--rounds" and (i == 0 or args[i - 1] != "--rounds")]
     neatlogs.init(api_key=os.environ["NEATLOGS_API_KEY"], workflow_name="mend-self-repair")
     try:
-        one_round(sys.argv[1] if len(sys.argv) > 1 else latest_run_id())
+        rounds(positional[0] if positional else latest_run_id(), limit)
     finally:
         neatlogs.flush()
         neatlogs.shutdown()
