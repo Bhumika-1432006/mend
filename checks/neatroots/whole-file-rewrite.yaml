@@ -1,0 +1,11 @@
+id: mend-whole-file-rewrite
+kind: rule
+title: Agent rewrote a whole existing file
+rule:
+  type: count
+  span: { type: [tool], name: [write_file] }
+  at_least: 1
+guidance: >-
+  You replaced the whole file to make a change. If you had not read all of it, the unread part is
+  gone. Use edit_file to replace only the lines you mean to change.
+action: flag
