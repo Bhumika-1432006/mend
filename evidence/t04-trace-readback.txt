@@ -1,0 +1,7 @@
+# T04, 10 Oct 2026 ~13:45 IST: our own trace read back from neatlogs over MCP.
+# Command: python -m mend.traces 2026-10-10T08:05:00Z
+# The Claude call failed with "credit balance too low" (Anthropic account), and the
+# trace records that failure.
+74deb82a7881b251184aa211c5ee3aa0  trace_check  workflow=mend-trace-check  status=error  errors=2
+workflow trace_check [ERROR] 890ms
+  llm claude-opus-5-5 [ERROR] 871ms
