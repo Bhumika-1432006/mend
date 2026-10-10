@@ -53,10 +53,13 @@ def facts() -> dict:
         d = (ROOT / r["diagnosis"].replace("\\", "/")).read_text(encoding="utf-8")
         m = re.search(r"## Chosen fix: (.+)", d)
         round_list.append({**r, "title": m.group(1) if m else "", "diagnosis_file": r["diagnosis"].replace("\\", "/")})
-    held = [r for r in runs.values() if r.get("heldout")]
+    real = [r for r in runs.values() if r.get("realworld")]
+    real_before = [r for r in real if r["worker_commit"] == "13defdb"]
+    real_after = [r for r in real if r["worker_commit"] != "13defdb"]
+    held = [r for r in runs.values() if r.get("heldout") and not r.get("realworld")]
     held_before = [r for r in held if r["worker_commit"] == "13defdb"]
     held_after = [r for r in held if r["worker_commit"] != "13defdb"]
-    return {"rounds": round_list, "first": first, "story": story, "haiku": haiku, "opus": opus, "held_before": held_before, "held_after": held_after,
+    return {"rounds": round_list, "first": first, "story": story, "haiku": haiku, "opus": opus, "held_before": held_before, "held_after": held_after, "real_before": real_before, "real_after": real_after,
             "before_runs": before_runs, "after_runs": after_runs,
             "runs_total": len(full), "tasks_total": max((r["total"] for r in full), default=0)}
 
@@ -155,6 +158,20 @@ def render() -> str:
     else:
         heldout_html = ""
 
+    if f["real_before"] and f["real_after"]:
+        rb = sum(tokens(r) for r in f["real_before"]) / len(f["real_before"])
+        ra = sum(tokens(r) for r in f["real_after"]) / len(f["real_after"])
+        real_html = f"""
+<section id="realworld"><div class="wrap">
+  <p class="eyebrow">Real-world test: an open-source library it never saw</p><h2>Beyond our sandbox.</h2>
+  <p class="sub">{f["real_before"][0]["total"]} bugs planted in <a class="link" href="{REPO}/tree/main/realworld/inflection">inflection</a>
+  (MIT, unmodified, 455 of its own tests). Never shown to the supervisor. Original worker against the self-repaired one, each run twice.
+  Mean tokens per run changed by {(ra - rb) / rb * 100:+.1f}%.</p>
+  <div class="ba two-col">{repeat_card("Original worker", f["real_before"], None, "bad")}{repeat_card("After self-repair", f["real_after"], None, "ok")}</div>
+</div></section>"""
+    else:
+        real_html = ""
+
     def run_row(r):
         return (f"<tr><td>{esc(r['run_id'][5:16].replace('T', ' '))}</td><td>{esc(r['model'].replace('claude-', ''))}</td>"
                 f"<td><a class=\"link\" href=\"{REPO}/commit/{esc(r['worker_commit'])}\">{esc(r['worker_commit'])}</a></td>"
@@ -251,6 +268,7 @@ footer{{padding:48px 0;color:var(--mute);font-size:14px}}
 {story_html}
 {repeat_html}
 {heldout_html}
+{real_html}
 {rounds_html}
 <section id="evidence"><div class="wrap">
   <p class="eyebrow">Evidence</p><h2>Every number comes from a run file.</h2>
