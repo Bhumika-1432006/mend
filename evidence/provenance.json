@@ -1,0 +1,3342 @@
+{
+  "mend/prompts/worker.md": {
+    "file": "mend/prompts/worker.md",
+    "summary": {
+      "total_lines": 13,
+      "ai_lines": 9,
+      "human_lines": 4,
+      "mixed_lines": 0,
+      "uncommitted_lines": 0,
+      "ai_percentage": 69,
+      "human_percentage": 31,
+      "mixed_percentage": 0
+    },
+    "lines": [
+      {
+        "n": 1,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "You are a software engineer fixing a bug in a small Python library called `invoicer`."
+      },
+      {
+        "n": 2,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "You can list files, read files, write files and run the test suite with the tools provided."
+      },
+      {
+        "n": 3,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "Fix the bug described in the report by editing the library code. Do not edit the tests."
+      },
+      {
+        "n": 4,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "When you are done, reply with a one-sentence summary of the fix."
+      },
+      {
+        "n": 5,
+        "by": "ai",
+        "commit": "931ea51",
+        "checkpoint": "01M4JPE6TRRG0JG1SGBG7PX8H2",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-30-26-after.diagnosis.md",
+        "round": {
+          "round": 3,
+          "title": "Add an efficient test-first workflow and stop-on-green rule to worker prompt",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-30-26-after.diagnosis.md"
+        },
+        "text": ""
+      },
+      {
+        "n": 6,
+        "by": "ai",
+        "commit": "931ea51",
+        "checkpoint": "01M4JPE6TRRG0JG1SGBG7PX8H2",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-30-26-after.diagnosis.md",
+        "round": {
+          "round": 3,
+          "title": "Add an efficient test-first workflow and stop-on-green rule to worker prompt",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-30-26-after.diagnosis.md"
+        },
+        "text": "## Workflow (be efficient; turns are limited)"
+      },
+      {
+        "n": 7,
+        "by": "ai",
+        "commit": "931ea51",
+        "checkpoint": "01M4JPE6TRRG0JG1SGBG7PX8H2",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-30-26-after.diagnosis.md",
+        "round": {
+          "round": 3,
+          "title": "Add an efficient test-first workflow and stop-on-green rule to worker prompt",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-30-26-after.diagnosis.md"
+        },
+        "text": ""
+      },
+      {
+        "n": 8,
+        "by": "ai",
+        "commit": "931ea51",
+        "checkpoint": "01M4JPE6TRRG0JG1SGBG7PX8H2",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-30-26-after.diagnosis.md",
+        "round": {
+          "round": 3,
+          "title": "Add an efficient test-first workflow and stop-on-green rule to worker prompt",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-30-26-after.diagnosis.md"
+        },
+        "text": "1. Start by calling run_tests with no pattern; you may call list_files in the same turn. The failure output names the failing test, file and line. Use it to decide what to read; do not browse files speculatively. Exception: if the report says the tests hang or never finish, skip this run. Instead, read the code the report points to and look for loops or recursion whose termination condition can fail."
+      },
+      {
+        "n": 9,
+        "by": "ai",
+        "commit": "931ea51",
+        "checkpoint": "01M4JPE6TRRG0JG1SGBG7PX8H2",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-30-26-after.diagnosis.md",
+        "round": {
+          "round": 3,
+          "title": "Add an efficient test-first workflow and stop-on-green rule to worker prompt",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-30-26-after.diagnosis.md"
+        },
+        "text": "2. Read only the source file(s) the failure traceback or report points to. If you need several files, request them all in the same turn with multiple tool calls rather than one per turn."
+      },
+      {
+        "n": 10,
+        "by": "ai",
+        "commit": "931ea51",
+        "checkpoint": "01M4JPE6TRRG0JG1SGBG7PX8H2",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-30-26-after.diagnosis.md",
+        "round": {
+          "round": 3,
+          "title": "Add an efficient test-first workflow and stop-on-green rule to worker prompt",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-30-26-after.diagnosis.md"
+        },
+        "text": "3. Make the fix with edit_file. If the change touches several places, issue all the edit_file calls in one turn."
+      },
+      {
+        "n": 11,
+        "by": "ai",
+        "commit": "931ea51",
+        "checkpoint": "01M4JPE6TRRG0JG1SGBG7PX8H2",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-30-26-after.diagnosis.md",
+        "round": {
+          "round": 3,
+          "title": "Add an efficient test-first workflow and stop-on-green rule to worker prompt",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-30-26-after.diagnosis.md"
+        },
+        "text": "4. Verify with a single run_tests call with no pattern. Do not run narrower patterns first."
+      },
+      {
+        "n": 12,
+        "by": "ai",
+        "commit": "931ea51",
+        "checkpoint": "01M4JPE6TRRG0JG1SGBG7PX8H2",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-30-26-after.diagnosis.md",
+        "round": {
+          "round": 3,
+          "title": "Add an efficient test-first workflow and stop-on-green rule to worker prompt",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-30-26-after.diagnosis.md"
+        },
+        "text": "5. As soon as the full suite reports PASSED, stop. Reply with the one-sentence summary. Do not re-read files, re-run tests or do further checks."
+      },
+      {
+        "n": 13,
+        "by": "ai",
+        "commit": "931ea51",
+        "checkpoint": "01M4JPE6TRRG0JG1SGBG7PX8H2",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-30-26-after.diagnosis.md",
+        "round": {
+          "round": 3,
+          "title": "Add an efficient test-first workflow and stop-on-green rule to worker prompt",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-30-26-after.diagnosis.md"
+        },
+        "text": "6. If the suite still fails, read the new failure output and repeat from step 2."
+      }
+    ]
+  },
+  "mend/worker.py": {
+    "file": "mend/worker.py",
+    "summary": {
+      "total_lines": 269,
+      "ai_lines": 20,
+      "human_lines": 180,
+      "mixed_lines": 69,
+      "uncommitted_lines": 0,
+      "ai_percentage": 7,
+      "human_percentage": 67,
+      "mixed_percentage": 26
+    },
+    "lines": [
+      {
+        "n": 1,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "\"\"\"The worker agent: fixes one planted bug in a sandbox copy using four tools."
+      },
+      {
+        "n": 2,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 3,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "Manual tool-use loop (not the SDK's beta tool runner) so neatlogs' wrap() traces every"
+      },
+      {
+        "n": 4,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "`messages.create` call and each tool call gets its own TOOL span."
+      },
+      {
+        "n": 5,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 6,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "The caller must run `neatlogs.init(...)` before calling `solve` (init must precede the"
+      },
+      {
+        "n": 7,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "anthropic import, so the client is created lazily)."
+      },
+      {
+        "n": 8,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "\"\"\""
+      },
+      {
+        "n": 9,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 10,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "import difflib"
+      },
+      {
+        "n": 11,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "import os"
+      },
+      {
+        "n": 12,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "import time"
+      },
+      {
+        "n": 13,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "from pathlib import Path"
+      },
+      {
+        "n": 14,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 15,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "import neatlogs"
+      },
+      {
+        "n": 16,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 17,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "from mend.tasks import run_tests"
+      },
+      {
+        "n": 18,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 19,
+        "by": "human",
+        "commit": "13defdb",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "# A cheap worker that Mend makes reliable; the supervisor runs on a stronger model."
+      },
+      {
+        "n": 20,
+        "by": "human",
+        "commit": "13defdb",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "MODEL = os.environ.get(\"MEND_WORKER_MODEL\", \"claude-haiku-4-5\")"
+      },
+      {
+        "n": 21,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "MAX_TURNS = 15"
+      },
+      {
+        "n": 22,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "PROMPT_FILE = Path(__file__).parent / \"prompts\" / \"worker.md\""
+      },
+      {
+        "n": 23,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 24,
+        "by": "mixed",
+        "commit": "c07f702",
+        "checkpoint": "01M4JTDJBYWVNVR9754CWYTY3A",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md",
+        "round": {
+          "round": 5,
+          "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md"
+        },
+        "text": "_AUTO_TEST_NOTE = ("
+      },
+      {
+        "n": 25,
+        "by": "mixed",
+        "commit": "c07f702",
+        "checkpoint": "01M4JTDJBYWVNVR9754CWYTY3A",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md",
+        "round": {
+          "round": 5,
+          "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md"
+        },
+        "text": "    \"After any turn containing a successful edit, the full test suite is run automatically and its result is \""
+      },
+      {
+        "n": 26,
+        "by": "mixed",
+        "commit": "c07f702",
+        "checkpoint": "01M4JTDJBYWVNVR9754CWYTY3A",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md",
+        "round": {
+          "round": 5,
+          "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md"
+        },
+        "text": "    \"returned to you; do not call run_tests yourself to verify. If the change needs several edits, make them all \""
+      },
+      {
+        "n": 27,
+        "by": "mixed",
+        "commit": "c07f702",
+        "checkpoint": "01M4JTDJBYWVNVR9754CWYTY3A",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md",
+        "round": {
+          "round": 5,
+          "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md"
+        },
+        "text": "    \"in this same turn so the automatic run sees the complete fix.\""
+      },
+      {
+        "n": 28,
+        "by": "mixed",
+        "commit": "c07f702",
+        "checkpoint": "01M4JTDJBYWVNVR9754CWYTY3A",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md",
+        "round": {
+          "round": 5,
+          "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md"
+        },
+        "text": ")"
+      },
+      {
+        "n": 29,
+        "by": "mixed",
+        "commit": "c07f702",
+        "checkpoint": "01M4JTDJBYWVNVR9754CWYTY3A",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md",
+        "round": {
+          "round": 5,
+          "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md"
+        },
+        "text": ""
+      },
+      {
+        "n": 30,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "TOOLS = ["
+      },
+      {
+        "n": 31,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    {"
+      },
+      {
+        "n": 32,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        \"name\": \"list_files\","
+      },
+      {
+        "n": 33,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        \"description\": \"List all files in the project, relative to its root.\","
+      },
+      {
+        "n": 34,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        \"input_schema\": {\"type\": \"object\", \"properties\": {}, \"additionalProperties\": False},"
+      },
+      {
+        "n": 35,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    },"
+      },
+      {
+        "n": 36,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    {"
+      },
+      {
+        "n": 37,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        \"name\": \"read_file\","
+      },
+      {
+        "n": 38,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "        \"description\": \"Read a text file. Returns numbered lines starting at `start` (1-based), at most `lines` lines. \""
+      },
+      {
+        "n": 39,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "        \"Each line is prefixed with its number and a TAB; the code starts right after the TAB.\","
+      },
+      {
+        "n": 40,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        \"input_schema\": {"
+      },
+      {
+        "n": 41,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            \"type\": \"object\","
+      },
+      {
+        "n": 42,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            \"properties\": {"
+      },
+      {
+        "n": 43,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "                \"path\": {\"type\": \"string\"},"
+      },
+      {
+        "n": 44,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "                \"start\": {\"type\": \"integer\", \"minimum\": 1},"
+      },
+      {
+        "n": 45,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "                \"lines\": {\"type\": \"integer\", \"minimum\": 1},"
+      },
+      {
+        "n": 46,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            },"
+      },
+      {
+        "n": 47,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            \"required\": [\"path\"],"
+      },
+      {
+        "n": 48,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            \"additionalProperties\": False,"
+      },
+      {
+        "n": 49,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        },"
+      },
+      {
+        "n": 50,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    },"
+      },
+      {
+        "n": 51,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    {"
+      },
+      {
+        "n": 52,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        \"name\": \"write_file\","
+      },
+      {
+        "n": 53,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": "        \"description\": \"Create a new file or replace the WHOLE content of a file. Anything you omit is deleted. \""
+      },
+      {
+        "n": 54,
+        "by": "mixed",
+        "commit": "c07f702",
+        "checkpoint": "01M4JTDJBYWVNVR9754CWYTY3A",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md",
+        "round": {
+          "round": 5,
+          "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md"
+        },
+        "text": "        \"To change part of an existing file use edit_file instead. \" + _AUTO_TEST_NOTE,"
+      },
+      {
+        "n": 55,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        \"input_schema\": {"
+      },
+      {
+        "n": 56,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            \"type\": \"object\","
+      },
+      {
+        "n": 57,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            \"properties\": {\"path\": {\"type\": \"string\"}, \"content\": {\"type\": \"string\"}},"
+      },
+      {
+        "n": 58,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            \"required\": [\"path\", \"content\"],"
+      },
+      {
+        "n": 59,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            \"additionalProperties\": False,"
+      },
+      {
+        "n": 60,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        },"
+      },
+      {
+        "n": 61,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    },"
+      },
+      {
+        "n": 62,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": "    {"
+      },
+      {
+        "n": 63,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": "        \"name\": \"edit_file\","
+      },
+      {
+        "n": 64,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        \"description\": \"Edit a file by replacing one exact occurrence of `old` with `new`. `old` must match the file's \""
+      },
+      {
+        "n": 65,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        \"current text exactly (including indentation; do not include the line-number-and-TAB prefix shown by read_file) \""
+      },
+      {
+        "n": 66,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        \"and must occur exactly once - include enough surrounding lines to make it unique. \""
+      },
+      {
+        "n": 67,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        \"Prefer this over write_file for any change to an existing file. \" + _AUTO_TEST_NOTE,"
+      },
+      {
+        "n": 68,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": "        \"input_schema\": {"
+      },
+      {
+        "n": 69,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": "            \"type\": \"object\","
+      },
+      {
+        "n": 70,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            \"properties\": {\"path\": {\"type\": \"string\"}, \"old\": {\"type\": \"string\"}, \"new\": {\"type\": \"string\"}},"
+      },
+      {
+        "n": 71,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            \"required\": [\"path\", \"old\", \"new\"],"
+      },
+      {
+        "n": 72,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": "            \"additionalProperties\": False,"
+      },
+      {
+        "n": 73,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": "        },"
+      },
+      {
+        "n": 74,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": "    },"
+      },
+      {
+        "n": 75,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    {"
+      },
+      {
+        "n": 76,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        \"name\": \"run_tests\","
+      },
+      {
+        "n": 77,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        \"description\": \"Run the pytest suite. Optional `pattern` is passed to pytest -k. Returns pass/fail and output.\","
+      },
+      {
+        "n": 78,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        \"input_schema\": {"
+      },
+      {
+        "n": 79,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            \"type\": \"object\","
+      },
+      {
+        "n": 80,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            \"properties\": {\"pattern\": {\"type\": \"string\"}},"
+      },
+      {
+        "n": 81,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            \"additionalProperties\": False,"
+      },
+      {
+        "n": 82,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        },"
+      },
+      {
+        "n": 83,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    },"
+      },
+      {
+        "n": 84,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "]"
+      },
+      {
+        "n": 85,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 86,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "_client = None"
+      },
+      {
+        "n": 87,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 88,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 89,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "def client():"
+      },
+      {
+        "n": 90,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    global _client"
+      },
+      {
+        "n": 91,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    if _client is None:"
+      },
+      {
+        "n": 92,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        from anthropic import Anthropic"
+      },
+      {
+        "n": 93,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 94,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        _client = neatlogs.wrap(Anthropic())"
+      },
+      {
+        "n": 95,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    return _client"
+      },
+      {
+        "n": 96,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 97,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 98,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "def _safe_path(work: Path, rel: str) -> Path:"
+      },
+      {
+        "n": 99,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    \"\"\"Resolve a tool-supplied path, refusing anything outside the sandbox copy.\"\"\""
+      },
+      {
+        "n": 100,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    path = (work / rel).resolve()"
+      },
+      {
+        "n": 101,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    if not path.is_relative_to(work.resolve()):"
+      },
+      {
+        "n": 102,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        raise ValueError(f\"path outside the project: {rel}\")"
+      },
+      {
+        "n": 103,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    return path"
+      },
+      {
+        "n": 104,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 105,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 106,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "@neatlogs.span(kind=\"TOOL\", tool_name=\"list_files\")"
+      },
+      {
+        "n": 107,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "def list_files(work: Path) -> str:"
+      },
+      {
+        "n": 108,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    return \"\\n\".join("
+      },
+      {
+        "n": 109,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        str(p.relative_to(work)).replace(\"\\\\\", \"/\")"
+      },
+      {
+        "n": 110,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        for p in sorted(work.rglob(\"*\"))"
+      },
+      {
+        "n": 111,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        if p.is_file() and \"__pycache__\" not in p.parts"
+      },
+      {
+        "n": 112,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    )"
+      },
+      {
+        "n": 113,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 114,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 115,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "@neatlogs.span(kind=\"TOOL\", tool_name=\"read_file\")"
+      },
+      {
+        "n": 116,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "def read_file(work: Path, path: str, start: int = 1, lines: int = 200) -> str:"
+      },
+      {
+        "n": 117,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    text = _safe_path(work, path).read_text(encoding=\"utf-8\").splitlines()"
+      },
+      {
+        "n": 118,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    chunk = text[start - 1 : start - 1 + lines]"
+      },
+      {
+        "n": 119,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    out = \"\\n\".join(f\"{start + i}\\t{line}\" for i, line in enumerate(chunk))"
+      },
+      {
+        "n": 120,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": "    remaining = len(text) - (start - 1 + len(chunk))"
+      },
+      {
+        "n": 121,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": "    if remaining > 0:"
+      },
+      {
+        "n": 122,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": "        out += f\"\\n... ({remaining} more lines; file has {len(text)} lines total)\""
+      },
+      {
+        "n": 123,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": "    return out"
+      },
+      {
+        "n": 124,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 125,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 126,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "@neatlogs.span(kind=\"TOOL\", tool_name=\"write_file\")"
+      },
+      {
+        "n": 127,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "def write_file(work: Path, path: str, content: str) -> str:"
+      },
+      {
+        "n": 128,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    target = _safe_path(work, path)"
+      },
+      {
+        "n": 129,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    if \"tests\" in target.relative_to(work.resolve()).parts:"
+      },
+      {
+        "n": 130,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        raise ValueError(\"editing tests is not allowed\")"
+      },
+      {
+        "n": 131,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    target.write_text(content, encoding=\"utf-8\")"
+      },
+      {
+        "n": 132,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    return f\"wrote {path} ({len(content)} chars)\""
+      },
+      {
+        "n": 133,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 134,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 135,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": "@neatlogs.span(kind=\"TOOL\", tool_name=\"edit_file\")"
+      },
+      {
+        "n": 136,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "def edit_file(work: Path, path: str, old: str, new: str) -> str:"
+      },
+      {
+        "n": 137,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": "    target = _safe_path(work, path)"
+      },
+      {
+        "n": 138,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": "    if \"tests\" in target.relative_to(work.resolve()).parts:"
+      },
+      {
+        "n": 139,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": "        raise ValueError(\"editing tests is not allowed\")"
+      },
+      {
+        "n": 140,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": "    text = target.read_text(encoding=\"utf-8\")"
+      },
+      {
+        "n": 141,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    count = text.count(old)"
+      },
+      {
+        "n": 142,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    if count == 0:"
+      },
+      {
+        "n": 143,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        return _edit_ignoring_whitespace(target, path, text, old, new)"
+      },
+      {
+        "n": 144,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    if count > 1:"
+      },
+      {
+        "n": 145,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        raise ValueError(f\"`old` occurs {count} times; include more surrounding context\")"
+      },
+      {
+        "n": 146,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    target.write_text(text.replace(old, new, 1), encoding=\"utf-8\")"
+      },
+      {
+        "n": 147,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    return f\"edited {path}: replaced {old.count(chr(10)) + 1} line(s) with {new.count(chr(10)) + 1} line(s)\""
+      },
+      {
+        "n": 148,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": ""
+      },
+      {
+        "n": 149,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": ""
+      },
+      {
+        "n": 150,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "def _indent(line: str) -> int:"
+      },
+      {
+        "n": 151,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    return len(line) - len(line.lstrip())"
+      },
+      {
+        "n": 152,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": ""
+      },
+      {
+        "n": 153,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": ""
+      },
+      {
+        "n": 154,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "def _edit_ignoring_whitespace(target: Path, path: str, text: str, old: str, new: str) -> str:"
+      },
+      {
+        "n": 155,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    \"\"\"Fallback when `old` has no exact match: match line by line ignoring surrounding whitespace,"
+      },
+      {
+        "n": 156,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    re-indent `new` to fit, or explain precisely how `old` differs from the file.\"\"\""
+      },
+      {
+        "n": 157,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    old_lines = old.rstrip(\"\\n\").split(\"\\n\")"
+      },
+      {
+        "n": 158,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    file_lines = text.split(\"\\n\")"
+      },
+      {
+        "n": 159,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    stripped = [line.strip() for line in file_lines]"
+      },
+      {
+        "n": 160,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    want = [line.strip() for line in old_lines]"
+      },
+      {
+        "n": 161,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    n = len(old_lines)"
+      },
+      {
+        "n": 162,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    hits = [i for i in range(len(file_lines) - n + 1) if stripped[i : i + n] == want]"
+      },
+      {
+        "n": 163,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    if len(hits) > 1:"
+      },
+      {
+        "n": 164,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "        starts = \", \".join(str(i + 1) for i in hits)"
+      },
+      {
+        "n": 165,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "        raise ValueError(f\"`old` matches (ignoring whitespace) at lines {starts}; include more surrounding context\")"
+      },
+      {
+        "n": 166,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    first = next((k for k, w in enumerate(want) if w), None)"
+      },
+      {
+        "n": 167,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    if not hits:"
+      },
+      {
+        "n": 168,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "        match = difflib.get_close_matches(want[first], stripped, n=1, cutoff=0) if first is not None else []"
+      },
+      {
+        "n": 169,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "        if not match:"
+      },
+      {
+        "n": 170,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "            raise ValueError(\"`old` not found in file; re-read the exact lines and copy them verbatim\")"
+      },
+      {
+        "n": 171,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "        line_no = stripped.index(match[0])"
+      },
+      {
+        "n": 172,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "        actual, mine = file_lines[line_no], old_lines[first]"
+      },
+      {
+        "n": 173,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "        raise ValueError("
+      },
+      {
+        "n": 174,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "            f\"`old` not found. Closest line in the file is line {line_no + 1}: {actual!r} \""
+      },
+      {
+        "n": 175,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "            f\"(leading spaces: {_indent(actual)}); your first line was {mine!r} (leading spaces: {_indent(mine)}). \""
+      },
+      {
+        "n": 176,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "            \"Copy the text exactly as shown.\""
+      },
+      {
+        "n": 177,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "        )"
+      },
+      {
+        "n": 178,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    i = hits[0]"
+      },
+      {
+        "n": 179,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    delta = 0 if first is None else _indent(file_lines[i + first]) - _indent(old_lines[first])"
+      },
+      {
+        "n": 180,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    new_lines = new.rstrip(\"\\n\").split(\"\\n\") if new.rstrip(\"\\n\") else []"
+      },
+      {
+        "n": 181,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    if delta > 0:"
+      },
+      {
+        "n": 182,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "        new_lines = [\" \" * delta + line if line.strip() else line for line in new_lines]"
+      },
+      {
+        "n": 183,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    elif delta < 0:"
+      },
+      {
+        "n": 184,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "        new_lines = [line[min(-delta, len(line) - len(line.lstrip(\" \"))) :] for line in new_lines]"
+      },
+      {
+        "n": 185,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    file_lines[i : i + n] = new_lines"
+      },
+      {
+        "n": 186,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    target.write_text(\"\\n\".join(file_lines), encoding=\"utf-8\")"
+      },
+      {
+        "n": 187,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    return ("
+      },
+      {
+        "n": 188,
+        "by": "human",
+        "commit": "b5e788d",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        f\"edited {path}: replaced {n} line(s) with {len(new_lines)} line(s) (note: your `old` had different \""
+      },
+      {
+        "n": 189,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "        f\"indentation than the file; matched ignoring whitespace and re-indented `new` by {delta:+d} spaces)\""
+      },
+      {
+        "n": 190,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": "    )"
+      },
+      {
+        "n": 191,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": ""
+      },
+      {
+        "n": 192,
+        "by": "mixed",
+        "commit": "f9dae91",
+        "checkpoint": "01M4JNTARSVBQJ2G7XQJMYBTNV",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md",
+        "round": {
+          "round": 2,
+          "title": "edit_file: on a miss, show the exact current text of a whitespace-insensitive match; make the read_file prefix unambiguous",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-17-27.diagnosis.md"
+        },
+        "text": ""
+      },
+      {
+        "n": 193,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "@neatlogs.span(kind=\"TOOL\", tool_name=\"run_tests\")"
+      },
+      {
+        "n": 194,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "def run_tests_tool(work: Path, pattern: str = \"\") -> str:"
+      },
+      {
+        "n": 195,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    passed, output = run_tests(work, pattern)"
+      },
+      {
+        "n": 196,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    return f\"{'PASSED' if passed else 'FAILED'}\\n{output}\""
+      },
+      {
+        "n": 197,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 198,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 199,
+        "by": "ai",
+        "commit": "e8a6baf",
+        "checkpoint": "01M4JJDPSDK3JP5AHG5BKN2JSM",
+        "model": "",
+        "diagnosis": "",
+        "round": {
+          "round": 1,
+          "title": "Add a targeted edit_file (exact string replace) tool and steer edits away from whole-file rewrites",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T09-15-17.diagnosis.md"
+        },
+        "text": "HANDLERS = {\"list_files\": list_files, \"read_file\": read_file, \"write_file\": write_file, \"edit_file\": edit_file, \"run_tests\": run_tests_tool}"
+      },
+      {
+        "n": 200,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 201,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 202,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "def current_trace_id() -> str | None:"
+      },
+      {
+        "n": 203,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    \"\"\"The active neatlogs trace id, read from the W3C traceparent the SDK can inject.\"\"\""
+      },
+      {
+        "n": 204,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    carrier: dict[str, str] = {}"
+      },
+      {
+        "n": 205,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    if neatlogs.inject_trace_context(carrier) and \"traceparent\" in carrier:"
+      },
+      {
+        "n": 206,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        return carrier[\"traceparent\"].split(\"-\")[1]"
+      },
+      {
+        "n": 207,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    return None"
+      },
+      {
+        "n": 208,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 209,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 210,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "@neatlogs.span(kind=\"WORKFLOW\")"
+      },
+      {
+        "n": 211,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "def solve_task(task_id: str, report: str, work: Path) -> dict:"
+      },
+      {
+        "n": 212,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    \"\"\"Run the agent loop on one task. Returns turns, tokens, stop reason and the trace id.\"\"\""
+      },
+      {
+        "n": 213,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    result = {\"task_id\": task_id, \"trace_id\": current_trace_id(), \"turns\": 0,"
+      },
+      {
+        "n": 214,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "              \"input_tokens\": 0, \"output_tokens\": 0, \"stop\": None, \"summary\": \"\"}"
+      },
+      {
+        "n": 215,
+        "by": "mixed",
+        "commit": "7e2148e",
+        "checkpoint": "01M4JQG23JYXJ34SHA46MCGMV2",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-41-18-after.diagnosis.md",
+        "round": {
+          "round": 4,
+          "title": "Loop: seed file listing and auto-finish when full suite passes after an edit",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-41-18-after.diagnosis.md"
+        },
+        "text": "    files = list_files(work)"
+      },
+      {
+        "n": 216,
+        "by": "mixed",
+        "commit": "7e2148e",
+        "checkpoint": "01M4JQG23JYXJ34SHA46MCGMV2",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-41-18-after.diagnosis.md",
+        "round": {
+          "round": 4,
+          "title": "Loop: seed file listing and auto-finish when full suite passes after an edit",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-41-18-after.diagnosis.md"
+        },
+        "text": "    messages = [{\"role\": \"user\", \"content\": f\"Bug report: {report}\\n\\nProject files:\\n{files}\"}]"
+      },
+      {
+        "n": 217,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    system = PROMPT_FILE.read_text(encoding=\"utf-8\")"
+      },
+      {
+        "n": 218,
+        "by": "mixed",
+        "commit": "7e2148e",
+        "checkpoint": "01M4JQG23JYXJ34SHA46MCGMV2",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-41-18-after.diagnosis.md",
+        "round": {
+          "round": 4,
+          "title": "Loop: seed file listing and auto-finish when full suite passes after an edit",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-41-18-after.diagnosis.md"
+        },
+        "text": "    edited = False"
+      },
+      {
+        "n": 219,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    while result[\"turns\"] < MAX_TURNS:"
+      },
+      {
+        "n": 220,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        result[\"turns\"] += 1"
+      },
+      {
+        "n": 221,
+        "by": "human",
+        "commit": "13defdb",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        extra = {} if MODEL.startswith(\"claude-haiku-4-5\") else {\"output_config\": {\"effort\": \"medium\"}}  # Haiku 4.5 rejects effort"
+      },
+      {
+        "n": 222,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        response = client().messages.create("
+      },
+      {
+        "n": 223,
+        "by": "human",
+        "commit": "13defdb",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            model=MODEL, max_tokens=16000, system=system, tools=TOOLS, messages=messages, **extra,"
+      },
+      {
+        "n": 224,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        )"
+      },
+      {
+        "n": 225,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        result[\"input_tokens\"] += response.usage.input_tokens"
+      },
+      {
+        "n": 226,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        result[\"output_tokens\"] += response.usage.output_tokens"
+      },
+      {
+        "n": 227,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        result[\"stop\"] = response.stop_reason"
+      },
+      {
+        "n": 228,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        messages.append({\"role\": \"assistant\", \"content\": response.content})"
+      },
+      {
+        "n": 229,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        if response.stop_reason != \"tool_use\":"
+      },
+      {
+        "n": 230,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            result[\"summary\"] = next((b.text for b in response.content if b.type == \"text\"), \"\")"
+      },
+      {
+        "n": 231,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            return result"
+      },
+      {
+        "n": 232,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        tool_results = []"
+      },
+      {
+        "n": 233,
+        "by": "mixed",
+        "commit": "c07f702",
+        "checkpoint": "01M4JTDJBYWVNVR9754CWYTY3A",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md",
+        "round": {
+          "round": 5,
+          "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md"
+        },
+        "text": "        suite_passed = edited_this_turn = ran_full_suite_this_turn = False"
+      },
+      {
+        "n": 234,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        for block in response.content:"
+      },
+      {
+        "n": 235,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            if block.type != \"tool_use\":"
+      },
+      {
+        "n": 236,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "                continue"
+      },
+      {
+        "n": 237,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            try:"
+      },
+      {
+        "n": 238,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "                content, is_error = HANDLERS[block.name](work, **block.input), False"
+      },
+      {
+        "n": 239,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            except Exception as exc:  # report tool failures back to the model, don't crash the run"
+      },
+      {
+        "n": 240,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "                content, is_error = f\"Error: {exc}\", True"
+      },
+      {
+        "n": 241,
+        "by": "mixed",
+        "commit": "7e2148e",
+        "checkpoint": "01M4JQG23JYXJ34SHA46MCGMV2",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-41-18-after.diagnosis.md",
+        "round": {
+          "round": 4,
+          "title": "Loop: seed file listing and auto-finish when full suite passes after an edit",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-41-18-after.diagnosis.md"
+        },
+        "text": "            if not is_error and block.name in (\"edit_file\", \"write_file\"):"
+      },
+      {
+        "n": 242,
+        "by": "mixed",
+        "commit": "c07f702",
+        "checkpoint": "01M4JTDJBYWVNVR9754CWYTY3A",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md",
+        "round": {
+          "round": 5,
+          "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md"
+        },
+        "text": "                edited = edited_this_turn = True"
+      },
+      {
+        "n": 243,
+        "by": "mixed",
+        "commit": "c07f702",
+        "checkpoint": "01M4JTDJBYWVNVR9754CWYTY3A",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md",
+        "round": {
+          "round": 5,
+          "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md"
+        },
+        "text": "            if block.name == \"run_tests\" and not block.input.get(\"pattern\"):"
+      },
+      {
+        "n": 244,
+        "by": "mixed",
+        "commit": "c07f702",
+        "checkpoint": "01M4JTDJBYWVNVR9754CWYTY3A",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md",
+        "round": {
+          "round": 5,
+          "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md"
+        },
+        "text": "                ran_full_suite_this_turn = True"
+      },
+      {
+        "n": 245,
+        "by": "mixed",
+        "commit": "c07f702",
+        "checkpoint": "01M4JTDJBYWVNVR9754CWYTY3A",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md",
+        "round": {
+          "round": 5,
+          "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md"
+        },
+        "text": "                if content.startswith(\"PASSED\"):"
+      },
+      {
+        "n": 246,
+        "by": "mixed",
+        "commit": "c07f702",
+        "checkpoint": "01M4JTDJBYWVNVR9754CWYTY3A",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md",
+        "round": {
+          "round": 5,
+          "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md"
+        },
+        "text": "                    suite_passed = True"
+      },
+      {
+        "n": 247,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "            tool_results.append({\"type\": \"tool_result\", \"tool_use_id\": block.id, \"content\": content, \"is_error\": is_error})"
+      },
+      {
+        "n": 248,
+        "by": "mixed",
+        "commit": "c07f702",
+        "checkpoint": "01M4JTDJBYWVNVR9754CWYTY3A",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md",
+        "round": {
+          "round": 5,
+          "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md"
+        },
+        "text": "        if edited_this_turn and not ran_full_suite_this_turn:  # verify edits ourselves, saving the model a turn"
+      },
+      {
+        "n": 249,
+        "by": "mixed",
+        "commit": "c07f702",
+        "checkpoint": "01M4JTDJBYWVNVR9754CWYTY3A",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md",
+        "round": {
+          "round": 5,
+          "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md"
+        },
+        "text": "            auto = run_tests_tool(work)"
+      },
+      {
+        "n": 250,
+        "by": "mixed",
+        "commit": "c07f702",
+        "checkpoint": "01M4JTDJBYWVNVR9754CWYTY3A",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md",
+        "round": {
+          "round": 5,
+          "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md"
+        },
+        "text": "            tool_results.append({\"type\": \"text\", \"text\": \"Automatic full test run after your edit(s):\\n\" + auto})"
+      },
+      {
+        "n": 251,
+        "by": "mixed",
+        "commit": "c07f702",
+        "checkpoint": "01M4JTDJBYWVNVR9754CWYTY3A",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md",
+        "round": {
+          "round": 5,
+          "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md"
+        },
+        "text": "            if auto.startswith(\"PASSED\"):"
+      },
+      {
+        "n": 252,
+        "by": "mixed",
+        "commit": "c07f702",
+        "checkpoint": "01M4JTDJBYWVNVR9754CWYTY3A",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md",
+        "round": {
+          "round": 5,
+          "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T11-18-45.diagnosis.md"
+        },
+        "text": "                suite_passed = True"
+      },
+      {
+        "n": 253,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "        messages.append({\"role\": \"user\", \"content\": tool_results})"
+      },
+      {
+        "n": 254,
+        "by": "mixed",
+        "commit": "7e2148e",
+        "checkpoint": "01M4JQG23JYXJ34SHA46MCGMV2",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-41-18-after.diagnosis.md",
+        "round": {
+          "round": 4,
+          "title": "Loop: seed file listing and auto-finish when full suite passes after an edit",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-41-18-after.diagnosis.md"
+        },
+        "text": "        if suite_passed and edited:  # full suite green after an edit: done, skip the verify/summary turn"
+      },
+      {
+        "n": 255,
+        "by": "mixed",
+        "commit": "7e2148e",
+        "checkpoint": "01M4JQG23JYXJ34SHA46MCGMV2",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-41-18-after.diagnosis.md",
+        "round": {
+          "round": 4,
+          "title": "Loop: seed file listing and auto-finish when full suite passes after an edit",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-41-18-after.diagnosis.md"
+        },
+        "text": "            result[\"stop\"] = \"suite_passed\""
+      },
+      {
+        "n": 256,
+        "by": "mixed",
+        "commit": "7e2148e",
+        "checkpoint": "01M4JQG23JYXJ34SHA46MCGMV2",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-41-18-after.diagnosis.md",
+        "round": {
+          "round": 4,
+          "title": "Loop: seed file listing and auto-finish when full suite passes after an edit",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-41-18-after.diagnosis.md"
+        },
+        "text": "            text = \"\".join(b.text for b in response.content if b.type == \"text\")"
+      },
+      {
+        "n": 257,
+        "by": "mixed",
+        "commit": "7e2148e",
+        "checkpoint": "01M4JQG23JYXJ34SHA46MCGMV2",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-41-18-after.diagnosis.md",
+        "round": {
+          "round": 4,
+          "title": "Loop: seed file listing and auto-finish when full suite passes after an edit",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-41-18-after.diagnosis.md"
+        },
+        "text": "            result[\"summary\"] = text or \"Fixed the bug; full test suite passes.\""
+      },
+      {
+        "n": 258,
+        "by": "mixed",
+        "commit": "7e2148e",
+        "checkpoint": "01M4JQG23JYXJ34SHA46MCGMV2",
+        "model": "claude-opus-5-5",
+        "diagnosis": "runs/2026-10-10T10-41-18-after.diagnosis.md",
+        "round": {
+          "round": 4,
+          "title": "Loop: seed file listing and auto-finish when full suite passes after an edit",
+          "kept": true,
+          "diagnosis": "runs/2026-10-10T10-41-18-after.diagnosis.md"
+        },
+        "text": "            return result"
+      },
+      {
+        "n": 259,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    result[\"stop\"] = \"max_turns\""
+      },
+      {
+        "n": 260,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    return result"
+      },
+      {
+        "n": 261,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 262,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": ""
+      },
+      {
+        "n": 263,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "def solve(task: dict, work: Path) -> dict:"
+      },
+      {
+        "n": 264,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    \"\"\"Solve one task in `work`, then judge it ourselves: pass = the full test suite passes.\"\"\""
+      },
+      {
+        "n": 265,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    started = time.time()"
+      },
+      {
+        "n": 266,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    result = solve_task(task[\"id\"], task[\"report\"], work)"
+      },
+      {
+        "n": 267,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    result[\"passed\"], _ = run_tests(work)"
+      },
+      {
+        "n": 268,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    result[\"duration_s\"] = round(time.time() - started, 1)"
+      },
+      {
+        "n": 269,
+        "by": "human",
+        "commit": "32a2673",
+        "checkpoint": "",
+        "model": "",
+        "diagnosis": "",
+        "round": null,
+        "text": "    return result"
+      }
+    ]
+  }
+}
