@@ -55,6 +55,10 @@ def expected_strings(rs: dict[str, dict]) -> list[str]:
             mb, ma = (sum(map(tokens, g)) / len(g) for g in (hb, ha))
             out += [f"{', '.join(str(r['passed']) for r in hb)} of {hb[0]['total']}", f"{mb:,.0f}",
                     f"{', '.join(str(r['passed']) for r in ha)} of {ha[0]['total']}", f"{ma:,.0f} ({pct(mb, ma)})"]
+    usage = ROOT / "evidence" / "tool-usage.json"
+    for u in (json.loads(usage.read_text(encoding="utf-8")).values() if usage.exists() else []):
+        c = u["counts"]
+        out.append(f"| {c.get('write_file', 0)} | {c.get('edit_file', 0) or '—'} | {c['run_tests']} | {c['llm_calls']} |")
     return out
 
 

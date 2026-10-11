@@ -1,0 +1,63 @@
+{
+  "2026-10-10T09-15-17": {
+    "run_id": "2026-10-10T09-15-17",
+    "worker_commit": "13defdb",
+    "passed": 27,
+    "total": 28,
+    "tokens": 933181,
+    "traces_missing": 0,
+    "counts": {
+      "list_files": 30,
+      "read_file": 102,
+      "run_tests": 75,
+      "write_file": 31,
+      "llm_calls": 235
+    }
+  },
+  "2026-10-10T09-31-07-after": {
+    "run_id": "2026-10-10T09-31-07-after",
+    "worker_commit": "e8a6baf",
+    "passed": 28,
+    "total": 28,
+    "tokens": 851463,
+    "traces_missing": 0,
+    "counts": {
+      "list_files": 28,
+      "read_file": 105,
+      "run_tests": 72,
+      "edit_file": 36,
+      "llm_calls": 242,
+      "write_file": 2
+    }
+  },
+  "2026-10-10T10-41-18-after": {
+    "run_id": "2026-10-10T10-41-18-after",
+    "worker_commit": "931ea51",
+    "passed": 29,
+    "total": 29,
+    "tokens": 618906,
+    "traces_missing": 0,
+    "counts": {
+      "run_tests": 56,
+      "list_files": 28,
+      "read_file": 86,
+      "edit_file": 32,
+      "llm_calls": 174
+    }
+  },
+  "2026-10-10T11-50-52-after": {
+    "run_id": "2026-10-10T11-50-52-after",
+    "worker_commit": "c07f702",
+    "passed": 29,
+    "total": 29,
+    "tokens": 347960,
+    "traces_missing": 0,
+    "counts": {
+      "list_files": 31,
+      "run_tests": 59,
+      "read_file": 91,
+      "edit_file": 33,
+      "llm_calls": 107
+    }
+  }
+}

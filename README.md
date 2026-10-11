@@ -120,6 +120,22 @@ Round records: the `*.round.json` files in [`runs/`](runs/). Rounds 2 and 3 were
 everything after line 200. Task 23 failed at the 15-turn limit; after the fix it passed in 8
 turns.
 
+### What changed in the worker's behaviour
+
+These counts were read back from the neatlogs traces of every task in each run
+([`scripts/tool_usage.py`](scripts/tool_usage.py) → [`evidence/tool-usage.json`](evidence/tool-usage.json),
+0 traces missing):
+
+| Run | Worker | Whole-file writes | `edit_file` calls | Test runs | Model calls |
+|---|---|---|---|---|---|
+| [09-15-17](runs/2026-10-10T09-15-17.json) (28 tasks) | original | 31 | — | 75 | 235 |
+| [09-31-07](runs/2026-10-10T09-31-07-after.json) (28 tasks) | after round 1 | 2 | 36 | 72 | 242 |
+| [10-41-18](runs/2026-10-10T10-41-18-after.json) (29 tasks) | after round 3 | 0 | 32 | 56 | 174 |
+| [11-50-52](runs/2026-10-10T11-50-52-after.json) (29 tasks) | after round 5 | 0 | 33 | 59 | 107 |
+
+Round 1 replaced the destructive habit, rewriting whole files, with precise edits. Rounds 3–5
+cut wasted turns, so model calls fell by more than half.
+
 ### Repeatable, not lucky: same 28 tasks, 3 runs each
 
 | Worker | Runs | Solved | Mean tokens per run | Task 23 |
