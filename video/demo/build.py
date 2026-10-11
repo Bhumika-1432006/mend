@@ -12,6 +12,7 @@ import asyncio
 import html
 import re
 import subprocess
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).parent
@@ -142,7 +143,15 @@ def main() -> None:
         inputs += ["-i", str(vo)]
         ms = int((start + 0.2) * 1000)
         filt.append(f"[{i}:a]adelay={ms}|{ms}[a{i}]")
-    filt.append("".join(f"[a{i}]" for i in range(1, len(voices) + 1)) + f"amix=inputs={len(voices)}:normalize=0,apad[a]")
+    filt.append("".join(f"[a{i}]" for i in range(1, len(voices) + 1)) + f"amix=inputs={len(voices)}:normalize=0,apad[voice]")
+    # quiet generated music bed (video/demo/music.py), ducked under the narration
+    music = HERE / "music.wav"
+    subprocess.run([sys.executable, str(HERE / "music.py"), f"{t + 1:.0f}", str(music)], check=True, capture_output=True)
+    inputs += ["-i", str(music)]
+    m = len(voices) + 1
+    filt.append("[voice]asplit[v1][v2]")
+    filt.append(f"[{m}:a]volume=0.10[bed];[bed][v1]sidechaincompress=threshold=0.02:ratio=6:attack=40:release=600[duck]")
+    filt.append("[v2][duck]amix=inputs=2:normalize=0,loudnorm=I=-16:TP=-1.5[a]")
     out = HERE / "mend-demo.mp4"
     subprocess.run(["ffmpeg", "-v", "error", "-y", *inputs, "-filter_complex", ";".join(filt), "-map", "0:v", "-map", "[a]",
                     "-t", f"{t:.2f}", "-c:v", "copy", "-c:a", "aac", "-b:a", "160k", str(out)], check=True)
