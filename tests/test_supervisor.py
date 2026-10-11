@@ -41,3 +41,25 @@ def test_repair_history_lists_kept_reverted_and_rejected(tmp_path, monkeypatch):
     assert lines[0].startswith("- KEPT: Add edit tool") and "Entire checkpoint shows it changed mend/worker.py" in lines[0]
     assert lines[1].startswith("- REVERTED: Shorter prompt")
     assert lines[2] == "- REJECTED before running: Hack (reason: patch mentions specific library code)"
+
+
+def test_choice_stops_before_patching_and_answer_becomes_precedent(tmp_path, monkeypatch):
+    import json
+    import mend.supervisor as sup
+    (tmp_path / "r1.json").write_text(json.dumps({"tasks": [], "passed": 1, "total": 1}))
+    fix = {"title": "Verify less", "target_file": "mend/worker.py", "instructions": "x", "why_general": "y",
+           "guard": {}, "judgment": {"is_choice": True, "question": "Run the full suite or only the failing test?",
+                                     "precedent_used": ""}}
+    monkeypatch.setattr(sup, "RUNS", tmp_path)
+    monkeypatch.setattr(sup, "PRECEDENTS", tmp_path / "precedents.json")
+    monkeypatch.setattr(sup, "git", lambda *a: "")
+    monkeypatch.setattr(sup, "write_diagnosis", lambda run_id, d: "d.md")
+    monkeypatch.setattr(sup, "diagnose_failures", lambda run_id: {"failures": [], "fix": fix})
+    monkeypatch.setattr(sup, "apply_patch", lambda *a: (_ for _ in ()).throw(AssertionError("must not patch")))
+    record = sup.one_round("r1")
+    assert record["needs_human"] and (tmp_path / "r1.question.json").exists()
+    sup.answer("r1", "Always run the full suite.")
+    assert sup.precedents() == [{"question": "Run the full suite or only the failing test?",
+                                 "answer": "Always run the full suite.", "asked_in": "r1"}]
+    monkeypatch.setattr(sup, "one_round", lambda run_id: record)
+    assert len(sup.rounds("r1", limit=3)) == 1  # a pending question stops the chain

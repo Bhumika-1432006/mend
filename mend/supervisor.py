@@ -8,6 +8,11 @@ Round: traces of failed and most wasteful runs (MCP) -> diagnosis (Claude, struc
 one general patch to the worker (headless Claude Code, so Entire can link the session to the
 commit) -> guard + commit -> re-run the suite -> keep if more tasks pass, or the same number
 pass with at least 15% fewer tokens; otherwise git revert.
+
+If the diagnosis says its fix is a CHOICE (it trades one valid behaviour for another that no test
+or token count decides), the round stops before patching and writes runs/<id>.question.json:
+    python -m mend.supervisor --answer <run_id> "<decision>"   # recorded in docs/precedents.json
+Every later diagnosis sees those decisions and follows them, so each question is asked once.
 """
 
 import json
@@ -31,6 +36,7 @@ TASK_SPECIFIC = ("money.py", "dates.py", "tax.py", "discounts.py", "invoice.py",
 SPAN_TEXT_LIMIT = 700
 WASTEFUL_SAMPLE = 3  # passing tasks with the most turns, also shown to the diagnosis
 TOKEN_SAVING = 0.15  # same pass count with this much fewer tokens also counts as better
+PRECEDENTS = ROOT / "docs" / "precedents.json"  # answers people gave to judgment questions; asked once, reused
 
 DIAGNOSIS_SCHEMA = {
     "type": "object",
@@ -69,8 +75,22 @@ DIAGNOSIS_SCHEMA = {
                     "required": ["display_name", "span_name", "output_pattern", "description"],
                     "additionalProperties": False,
                 },
+                "judgment": {
+                    "type": "object",
+                    "description": "Is this fix a CHOICE rather than a correction? A choice trades one valid worker behaviour "
+                                   "for another that neither the tests nor the token count can decide (e.g. scope of edits, "
+                                   "how much to verify, what to leave untouched). If a recorded human decision already "
+                                   "settles it, it is not a choice: follow that decision.",
+                    "properties": {
+                        "is_choice": {"type": "boolean"},
+                        "question": {"type": "string", "description": "if a choice: one question for a person, with the options"},
+                        "precedent_used": {"type": "string", "description": "the recorded decision this fix follows, or ''"},
+                    },
+                    "required": ["is_choice", "question", "precedent_used"],
+                    "additionalProperties": False,
+                },
             },
-            "required": ["title", "target_file", "instructions", "why_general", "guard"],
+            "required": ["title", "target_file", "instructions", "why_general", "guard", "judgment"],
             "additionalProperties": False,
         },
     },
@@ -126,6 +146,18 @@ def _entire_files(sha: str) -> str:
     return ", ".join(line.strip().strip("-` ") for line in section.splitlines() if line.strip().startswith("- "))
 
 
+def precedents() -> list[dict]:
+    return json.loads(PRECEDENTS.read_text(encoding="utf-8")) if PRECEDENTS.exists() else []
+
+
+def answer(run_id: str, text: str) -> dict:
+    """Record a person's answer to a pending judgment question, so the next round can follow it."""
+    q = json.loads((RUNS / f"{run_id}.question.json").read_text(encoding="utf-8"))
+    entry = {"question": q["question"], "answer": text, "asked_in": run_id}
+    PRECEDENTS.write_text(json.dumps(precedents() + [entry], indent=2), encoding="utf-8")
+    return entry
+
+
 def repair_history() -> str:
     """Every fix Mend has tried on itself (kept, reverted or rejected), from round records and Entire checkpoints."""
     lines = []
@@ -160,6 +192,8 @@ def diagnose_failures(run_id: str) -> dict:
         "## Worker system prompt (mend/prompts/worker.md)\n" + (ROOT / "mend/prompts/worker.md").read_text(encoding="utf-8"),
         "## Repair history (round records + Entire checkpoints). Do not propose a fix that repeats one already "
         "kept, reverted or rejected; build on what is there.\n" + (repair_history() or "(none yet)"),
+        "## Decisions made by people (precedents). Follow them; never ask again what one of these settles.\n"
+        + ("\n".join(f"- Q: {p['question']}\n  A: {p['answer']}" for p in precedents()) or "(none yet)"),
     ]
     for t in failed + wasteful:
         outcome = "Failed" if not t["passed"] else "Passed but slow"
@@ -187,6 +221,11 @@ def write_diagnosis(run_id: str, diagnosis: dict) -> str:
     text = (f"# Diagnosis of run {run_id}\n\n| Task | Failing step | Cause | General weakness |\n|---|---|---|---|\n{rows}\n\n"
             f"## Chosen fix: {fix['title']}\n\nFile: `{fix['target_file']}`\n\n{fix['instructions']}\n\n"
             f"Why it is general: {fix['why_general']}\n")
+    j = fix.get("judgment") or {}
+    if j.get("is_choice"):
+        text += f"\n## Judgment needed (not applied)\n\n{j['question']}\n"
+    elif j.get("precedent_used"):
+        text += f"\n## Follows a recorded human decision\n\n{j['precedent_used']}\n"
     if fix.get("guard"):
         g = fix["guard"]
         text += (f"\n## Proposed neatlogs regression guard\n\n`{g['display_name']}`: regex `{g['output_pattern']}` on the "
@@ -231,6 +270,14 @@ def one_round(run_id: str) -> dict:
         return {"before": run_id, "kept": False, "reason": "no failures"}
     diagnosis_file = write_diagnosis(run_id, diagnosis)
     print(f"diagnosis -> {diagnosis_file}: {diagnosis['fix']['title']}")
+    judgment = diagnosis["fix"].get("judgment") or {}
+    if judgment.get("is_choice"):  # automate what isn't a choice; ask a person when it is, once
+        record = {"before": run_id, "kept": False, "needs_human": True, "question": judgment["question"],
+                  "title": diagnosis["fix"]["title"], "diagnosis": diagnosis_file}
+        (RUNS / f"{run_id}.question.json").write_text(json.dumps(record, indent=2), encoding="utf-8")
+        print(f"needs a person: {judgment['question']}\n"
+              f"answer with: python -m mend.supervisor --answer {run_id} \"<your decision>\"")
+        return record
     ok, why = apply_patch(diagnosis["fix"], diagnosis_file)
     if not ok:
         subprocess.run(["git", "checkout", "--", *ALLOWED_FILES], cwd=ROOT)
@@ -276,7 +323,7 @@ def rounds(run_id: str, limit: int) -> list[dict]:
     for _ in range(limit):
         record = one_round(run_id)
         records.append(record)
-        if not record["kept"]:
+        if not record["kept"] or record.get("needs_human"):
             break
         run_id = record["after"]
     return records
@@ -285,6 +332,9 @@ def rounds(run_id: str, limit: int) -> list[dict]:
 if __name__ == "__main__":
     # python -m mend.supervisor [run_id] [--rounds N]
     args = sys.argv[1:]
+    if args[:1] == ["--answer"]:
+        print(json.dumps(answer(args[1], args[2]), indent=2))
+        sys.exit(0)
     limit = int(args[args.index("--rounds") + 1]) if "--rounds" in args else 1
     positional = [a for i, a in enumerate(args) if a != "--rounds" and (i == 0 or args[i - 1] != "--rounds")]
     neatlogs.init(api_key=os.environ["NEATLOGS_API_KEY"], workflow_name="mend-self-repair")
