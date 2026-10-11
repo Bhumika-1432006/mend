@@ -63,6 +63,42 @@ worker agent ──runs 29 tasks──▶ neatlogs traces every model call and t
 5. **Prove.** The suite re-runs. The patch is kept if more tasks pass, or the same tasks pass
    with at least 15% fewer tokens. Otherwise it is reverted with `git revert`.
 
+### Is self-healing self-defeating?
+
+neatlogs' founder argues that a loop which fixes every mistake drifts toward the median, unless
+someone defines what "better" means
+([Self-healing is self-defeating](https://neatlogs.com/blog/self-healing-is-self-defeating)).
+His prescription has three steps: automate everything that isn't a choice, ask someone when it
+is, and remember the answer. Here is where Mend stands on each:
+
+- **Automate what isn't a choice.** Mend only repairs things with an objective answer. The
+  library's own test suite judges each task, the runner does the judging (not the agent), and
+  token cost is counted by the API. Mend never repairs taste, tone or policy.
+- **"Better" is defined by people.** The keep rule is code we wrote (`one_round()` in
+  [`mend/supervisor.py`](mend/supervisor.py)), written out in [`docs/GATE.md`](docs/GATE.md).
+  The supervisor may not change it, because only two files may change. Round 6 shows the gate
+  saying no.
+- **Remember the answer.** Every round, whether kept, reverted or rejected, is a record in
+  `runs/`, and the Claude Code session behind each fix is an Entire checkpoint. Both are fed back
+  into the next diagnosis, so a failed fix is not proposed again.
+- **Not done yet: asking a person.** When a fix would trade one valid behaviour for another, Mend
+  has no step that stops and asks. Today that can't happen, because every task has a test that
+  decides. It is the first thing we would add before pointing Mend at an agent whose "correct"
+  contains choices.
+
+### What makes this more than a loop
+
+Several self-repair loops were built for neatHack. Here is what Mend shows beyond "it got better
+once":
+- **6 rounds**, 5 kept and **1 reverted** by the gate, with every decision re-checkable in the
+  browser ([site, "Check it yourself"](https://thegoodengineers.github.io/mend/#verify)) or with
+  `python -m mend.verify`.
+- **Held-out bugs** the supervisor never saw: 9/10 → 10/10.
+- **A real open-source library** it never saw (inflection): 2–3/8 → 8/8.
+- **Repeat runs:** 3 runs before and 3 after, on the same 28 tasks.
+- **Repair memory** read back from Entire checkpoints.
+- **A second opinion** from neatlogs' own neatroots checker.
+
 ## Results
 
 ### Self-repair rounds (five kept, one reverted)

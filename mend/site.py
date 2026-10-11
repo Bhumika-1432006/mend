@@ -79,6 +79,10 @@ def repeat_card(label: str, group: list[dict], task: str | None, cls: str) -> st
 
 def render() -> str:
     f = facts()
+    vrounds = json.dumps([{"before": r["before"], "after": r["after"], "kept": r["kept"]} for r in f["rounds"]])
+    vsets = json.dumps([{"label": label, "ids": [r["run_id"] for r in f[key]]} for label, key in [
+        ("Held-out, original worker", "held_before"), ("Held-out, after self-repair", "held_after"),
+        ("Real-world library, original worker", "real_before"), ("Real-world library, after self-repair", "real_after")]])
     demo = demo_block(f["first"], f["story"]["title"] if f["story"] else "")
     first, story = f["first"], f["story"]
     kept = [r for r in f["rounds"] if r["kept"]]
@@ -272,6 +276,17 @@ footer{{padding:48px 0;color:var(--mute);font-size:14px}}
 {heldout_html}
 {real_html}
 {rounds_html}
+<section id="judgment"><div class="wrap">
+  <p class="eyebrow">Is self-healing self-defeating?</p><h2>Mend only fixes what isn't a choice.</h2>
+  <p class="sub">neatlogs' founder <a class="link" href="https://neatlogs.com/blog/self-healing-is-self-defeating">argues</a> that a loop which fixes
+  everything drifts toward the median unless someone defines "better". His answer has three steps: automate what isn't a choice, ask when it is, remember the answer.</p>
+  <div class="tools">
+    <div class="tool card"><h3>Not a choice</h3><p>Every task is judged by the library's own tests, run by the runner, not the agent. Token cost comes from the API. Mend never tunes tone or policy.</p></div>
+    <div class="tool card"><h3>Remembered</h3><p>Every round, kept or reverted, is a run record and an Entire checkpoint, and both feed the next diagnosis. A failed fix is not proposed twice.</p></div>
+    <div class="tool card"><h3>Not built yet: asking</h3><p>If a fix ever traded one valid behaviour for another, Mend has no step that stops and asks a person. That comes first before pointing it at an agent whose "correct" contains choices.</p></div>
+  </div>
+</div></section>
+
 <section id="evidence"><div class="wrap">
   <p class="eyebrow">Evidence</p><h2>Every number comes from a run file.</h2>
   <p class="sub">{f['runs_total']} full suite runs so far. A cheap worker (Claude Haiku 4.5) repaired by a
@@ -289,7 +304,36 @@ cd mend && python -m venv .venv && .venv/bin/pip install -e ".[dev]"
 python -m mend.verify        # recompute every README number from runs/*.json
 python -m mend.tasks --check # all 47 planted bugs break their test suites; correct code passes
 pytest -q                    # unit tests</pre></div>
+  <div class="card" style="margin-top:16px"><p style="margin:0 0 12px"><b>Or right here, in your browser:</b> this fetches the raw
+  run files from this site, re-counts every task, and re-applies the <a class="link" href="{REPO}/blob/main/docs/GATE.md">pre-registered keep rule</a> to every round.</p>
+  <button class="pill" id="vbtn" type="button">Re-check every round now</button>
+  <pre id="vout" style="margin:14px 0 0;font:13px/1.7 'JetBrains Mono',monospace;white-space:pre-wrap"></pre></div>
 </div></section>
+<script>
+const VROUNDS = {vrounds}, VSETS = {vsets};
+document.getElementById('vbtn').onclick = async () => {{
+  const out = document.getElementById('vout'), log = t => out.textContent += t + String.fromCharCode(10);
+  out.textContent = ''; let bad = 0;
+  const run = async id => {{
+    const r = await (await fetch('runs/' + id + '.json')).json();
+    return {{passed: r.tasks.filter(t => t.passed).length, total: r.tasks.length,
+             tokens: r.tasks.reduce((s, t) => s + t.input_tokens + t.output_tokens, 0)}};
+  }};
+  try {{
+    for (const [i, rd] of VROUNDS.entries()) {{
+      const b = await run(rd.before), a = await run(rd.after);
+      const keep = a.passed > b.passed || (a.passed === b.passed && a.tokens <= 0.85 * b.tokens);
+      const ok = keep === rd.kept; bad += !ok;
+      log(`${{ok ? '✓' : '✗ MISMATCH'}} round ${{i + 1}}: ${{b.passed}}/${{b.total}} → ${{a.passed}}/${{a.total}} solved, ${{b.tokens.toLocaleString()}} → ${{a.tokens.toLocaleString()}} tokens → gate says ${{keep ? 'KEEP' : 'REVERT'}} (recorded: ${{rd.kept ? 'kept' : 'reverted'}})`);
+    }}
+    for (const s of VSETS) {{
+      const rs = await Promise.all(s.ids.map(run));
+      log(`✓ ${{s.label}}: ${{rs.map(r => r.passed + '/' + r.total).join(', ')}} (${{s.ids.length}} run file${{s.ids.length > 1 ? 's' : ''}})`);
+    }}
+    log(bad ? `${{bad}} mismatch(es)` : 'All recorded decisions match the rule.');
+  }} catch (e) {{ log('Could not fetch run files: ' + e); }}
+}};
+</script>
 
 <section id="tools"><div class="wrap">
   <p class="eyebrow">Built with</p><h2>neatlogs, Entire and cfo.ai, each doing real work.</h2>
