@@ -21,6 +21,12 @@ MODEL = os.environ.get("MEND_WORKER_MODEL", "claude-haiku-4-5")
 MAX_TURNS = 15
 PROMPT_FILE = Path(__file__).parent / "prompts" / "worker.md"
 
+_AUTO_TEST_NOTE = (
+    "After any turn containing a successful edit, the full test suite is run automatically and its result is "
+    "returned to you; do not call run_tests yourself to verify. If the change needs several edits, make them all "
+    "in this same turn so the automatic run sees the complete fix."
+)
+
 TOOLS = [
     {
         "name": "list_files",
@@ -45,7 +51,7 @@ TOOLS = [
     {
         "name": "write_file",
         "description": "Create a new file or replace the WHOLE content of a file. Anything you omit is deleted. "
-        "To change part of an existing file use edit_file instead.",
+        "To change part of an existing file use edit_file instead. " + _AUTO_TEST_NOTE,
         "input_schema": {
             "type": "object",
             "properties": {"path": {"type": "string"}, "content": {"type": "string"}},
@@ -58,7 +64,7 @@ TOOLS = [
         "description": "Edit a file by replacing one exact occurrence of `old` with `new`. `old` must match the file's "
         "current text exactly (including indentation; do not include the line-number-and-TAB prefix shown by read_file) "
         "and must occur exactly once - include enough surrounding lines to make it unique. "
-        "Prefer this over write_file for any change to an existing file.",
+        "Prefer this over write_file for any change to an existing file. " + _AUTO_TEST_NOTE,
         "input_schema": {
             "type": "object",
             "properties": {"path": {"type": "string"}, "old": {"type": "string"}, "new": {"type": "string"}},
@@ -224,7 +230,7 @@ def solve_task(task_id: str, report: str, work: Path) -> dict:
             result["summary"] = next((b.text for b in response.content if b.type == "text"), "")
             return result
         tool_results = []
-        suite_passed = False
+        suite_passed = edited_this_turn = ran_full_suite_this_turn = False
         for block in response.content:
             if block.type != "tool_use":
                 continue
@@ -233,10 +239,17 @@ def solve_task(task_id: str, report: str, work: Path) -> dict:
             except Exception as exc:  # report tool failures back to the model, don't crash the run
                 content, is_error = f"Error: {exc}", True
             if not is_error and block.name in ("edit_file", "write_file"):
-                edited = True
-            if block.name == "run_tests" and not block.input.get("pattern") and content.startswith("PASSED"):
-                suite_passed = True
+                edited = edited_this_turn = True
+            if block.name == "run_tests" and not block.input.get("pattern"):
+                ran_full_suite_this_turn = True
+                if content.startswith("PASSED"):
+                    suite_passed = True
             tool_results.append({"type": "tool_result", "tool_use_id": block.id, "content": content, "is_error": is_error})
+        if edited_this_turn and not ran_full_suite_this_turn:  # verify edits ourselves, saving the model a turn
+            auto = run_tests_tool(work)
+            tool_results.append({"type": "text", "text": "Automatic full test run after your edit(s):\n" + auto})
+            if auto.startswith("PASSED"):
+                suite_passed = True
         messages.append({"role": "user", "content": tool_results})
         if suite_passed and edited:  # full suite green after an edit: done, skip the verify/summary turn
             result["stop"] = "suite_passed"

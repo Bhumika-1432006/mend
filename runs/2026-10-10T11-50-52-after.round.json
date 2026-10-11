@@ -1,0 +1,18 @@
+{
+  "before": "2026-10-10T11-18-45",
+  "before_passed": 29,
+  "after": "2026-10-10T11-50-52-after",
+  "after_passed": 29,
+  "total": 29,
+  "before_tokens": 456563,
+  "after_tokens": 347960,
+  "commit": "c07f702",
+  "kept": true,
+  "diagnosis": "runs\\2026-10-10T11-18-45.diagnosis.md",
+  "title": "Loop: auto-run full test suite after any turn with a successful edit; finish on green",
+  "guard": {
+    "guard": "Mend: slow solve (6+ turns)",
+    "status": "created",
+    "matched_spans": 5
+  }
+}

@@ -37,6 +37,28 @@ def commit_links(sha: str) -> str:
     return link
 
 
+def hero_html(rounds: list[dict]) -> str:
+    if not rounds:
+        return ""
+    first = rounds[0]
+    last = rounds[-1]
+    tok_before = first.get("before_tokens", 0)
+    tok_after = last.get("after_tokens", 0)
+    tok_pct = f"−{100 - round(tok_after / tok_before * 100)}%" if tok_before else ""
+    return (
+        f'<section class="hero">'
+        f'<p class="hero-label">Latest self-repair result</p>'
+        f'<div class="hero-score">'
+        f'<span class="score-before">{first["before_passed"]}<span class="score-denom">/{first["total"]}</span></span>'
+        f'<span class="arrow">→</span>'
+        f'<span class="score-after">{last["after_passed"]}<span class="score-denom">/{last["total"]}</span></span>'
+        f'</div>'
+        f'<p class="hero-sub">tasks solved &nbsp;·&nbsp; {tok_before:,} → {tok_after:,} tokens&nbsp;<b>{tok_pct}</b>'
+        f'&nbsp;·&nbsp; {len(rounds)} self-repair round{"s" if len(rounds) != 1 else ""} kept</p>'
+        f'</section>'
+    )
+
+
 def _demo_data(rounds: list[dict], runs: list[dict], tasks: list[dict]) -> str:
     """Return a JSON string of the data needed by the demo overlay."""
     if not rounds:
@@ -44,7 +66,6 @@ def _demo_data(rounds: list[dict], runs: list[dict], tasks: list[dict]) -> str:
     r = rounds[0]
     before_run = next((x for x in runs if x["run_id"] == r["before"]), None)
     after_run = next((x for x in runs if x["run_id"] == r["after"]), None)
-    # Find a task that failed before but passed after
     failing_task_id = None
     failing_task_report = ""
     if before_run and after_run:
@@ -55,12 +76,10 @@ def _demo_data(rounds: list[dict], runs: list[dict], tasks: list[dict]) -> str:
                 failing_task_id = t["id"]
                 failing_task_report = t.get("report", "")
                 break
-    # Grab first diagnosis
     diag_text = ""
     diag_path = RUNS / (r["before"] + ".diagnosis.md")
     if diag_path.exists():
         lines = diag_path.read_text(encoding="utf-8").splitlines()
-        # Keep up to the first 12 lines (header + table rows)
         diag_text = "\n".join(lines[:12])
     sha = r["commit"]
     checkpoint_url = f"https://entire.io/gh/thegoodengineers/mend/commit/{sha}" if sha[:7] in CHECKPOINTED else ""
@@ -161,7 +180,8 @@ def render() -> str:
     totals = "".join(f"<td><b>{r['passed']}/{r['total']}</b><br><small>{(r.get('input_tokens', 0) + r.get('output_tokens', 0)):,} tok</small></td>" for r in runs)
 
     diagnoses = "".join(
-        f"<details><summary>Diagnosis of {esc(p.stem.replace('.diagnosis', ''))}</summary><pre>{esc(p.read_text(encoding='utf-8'))}</pre></details>"
+        f"<details><summary>{esc(p.stem.replace('.diagnosis', ''))}</summary>"
+        f"<div class='diag-body'><pre>{esc(p.read_text(encoding='utf-8'))}</pre></div></details>"
         for p in sorted(RUNS.glob("*.diagnosis.md"))
     )
     demo_json = _demo_data(rounds, runs, tasks)
@@ -171,30 +191,49 @@ def render() -> str:
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@800&family=Instrument+Serif:ital@1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-/* Same system as the landing page (mend/site.py): sage ground, paper cards, Inter Tight titles, serif italic sub-lines. */
 :root{{--bg:#e6e6dd;--card:#f4f4ee;--ink:#0f0f0d;--mute:#5d5d55;--line:#cbcbbf;--ok:#16794a;--bad:#b83a3a}}
+*{{box-sizing:border-box}}
 body{{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,sans-serif}}
 nav{{position:sticky;top:0;background:rgba(230,230,221,.88);backdrop-filter:blur(10px);z-index:5}}
 nav div{{max-width:1160px;margin:auto;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between}}
 nav a{{text-decoration:none;color:var(--mute);font-size:14px;margin-left:20px}} nav b{{font:800 17px 'Inter Tight',sans-serif;color:var(--ink)}}
 main{{max-width:1160px;margin:auto;padding:40px 24px 64px}}
-h1{{margin:0;font:800 clamp(44px,7vw,84px)/.95 'Inter Tight',sans-serif;letter-spacing:-.045em}}
-p.sub{{font:italic 400 22px/1.3 'Instrument Serif',Georgia,serif;color:var(--mute);margin:12px 0 32px;max-width:780px}}
+h1{{margin:0;font:800 clamp(36px,6vw,80px)/.95 'Inter Tight',sans-serif;letter-spacing:-.045em}}
+p.sub{{font:italic 400 20px/1.3 'Instrument Serif',Georgia,serif;color:var(--mute);margin:12px 0 32px;max-width:780px}}
 section{{background:var(--card);border-radius:22px;padding:24px;margin-bottom:22px;overflow-x:auto;box-shadow:0 1px 1px rgba(15,15,13,.04),0 14px 32px rgba(15,15,13,.06)}}
-h2{{font:800 26px 'Inter Tight',sans-serif;letter-spacing:-.02em;margin:0 0 14px}} table{{border-collapse:collapse;width:100%}}
+section.hero{{overflow:visible;text-align:center;padding:40px 24px}}
+.hero-label{{font:500 13px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:0 0 16px}}
+.hero-score{{display:flex;align-items:baseline;justify-content:center;gap:20px;margin-bottom:12px}}
+.score-before{{font:800 clamp(56px,10vw,96px)/.9 'Inter Tight',sans-serif;color:var(--bad)}}
+.score-after{{font:800 clamp(56px,10vw,96px)/.9 'Inter Tight',sans-serif;color:var(--ok)}}
+.score-denom{{font-size:.45em;color:var(--mute)}}
+.arrow{{font:800 clamp(32px,5vw,56px)/.9 'Inter Tight',sans-serif;color:var(--mute)}}
+.hero-sub{{color:var(--mute);font-size:15px;margin:0}}
+h2{{font:800 22px 'Inter Tight',sans-serif;letter-spacing:-.02em;margin:0 0 14px}} table{{border-collapse:collapse;width:100%}}
 th,td{{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;white-space:nowrap}} th{{color:var(--mute);font-weight:500}}
 td.ok{{color:var(--ok);font-weight:600}} td.bad{{color:var(--bad);font-weight:600}} td.na{{color:var(--mute)}}
-small{{color:var(--mute);margin-left:6px;font:400 14px Inter,sans-serif;letter-spacing:0}} a{{color:var(--ink);text-underline-offset:3px}}
-pre{{white-space:pre-wrap;color:var(--ink);font-size:13px;background:var(--bg);border-radius:12px;padding:14px}} summary{{cursor:pointer;margin:8px 0;font-weight:600}}
+small{{color:var(--mute);margin-left:6px;font:400 13px Inter,sans-serif;letter-spacing:0}} a{{color:var(--ink);text-underline-offset:3px}}
+pre{{white-space:pre-wrap;color:var(--ink);font-size:13px;background:var(--bg);border-radius:12px;padding:14px;overflow-x:auto}}
+details{{border-bottom:1px solid var(--line);padding:4px 0}} details:last-child{{border:none}}
+summary{{cursor:pointer;padding:10px 0;font-weight:600;font-size:14px;list-style:none;display:flex;align-items:center;gap:8px}}
+summary::before{{content:'▶';font-size:11px;color:var(--mute);transition:transform .15s}} details[open] summary::before{{transform:rotate(90deg)}}
+.diag-body{{padding:4px 0 12px}}
+@media(max-width:600px){{
+  main{{padding:24px 16px 48px}}
+  section{{padding:18px 14px;border-radius:16px}}
+  th,td{{padding:6px 8px;font-size:13px}}
+  .hero-score{{gap:12px}}
+}}
 </style></head><body>
 {demo_html}
 <nav><div><a href="index.html" style="margin:0"><b>Mend</b></a><span><a href="index.html">Home</a><a href="{REPO}">GitHub</a></span></div></nav>
 <main>
 <h1>Full report</h1>
-<p class="sub">Every round, every task, every run, every diagnosis. All of it is generated from the run files in <a href="{REPO}/tree/main/runs">runs/</a>.</p>
+<p class="sub">Every round, every task, every run, every diagnosis — generated from the files in <a href="{REPO}/tree/main/runs">runs/</a>.</p>
+{hero_html(rounds)}
 <section><h2>Self-repair rounds</h2><table><tr><th>Before</th><th>Passed</th><th>After</th><th>Passed</th><th>Tokens</th><th>Result</th><th>Patch</th></tr>{round_rows}</table></section>
-<section><h2>Tasks across runs <small>(pass/fail and turns; hover for trace id)</small></h2><table><tr><th>Task</th>{head}</tr>{''.join(grid)}<tr><th>Total</th>{totals}</tr></table></section>
-<section><h2>Diagnoses written by the supervisor</h2>{diagnoses or '<p>None yet.</p>'}</section>
+<section><h2>Tasks across runs <small>(pass/fail · turns · hover for trace id)</small></h2><table><tr><th>Task</th>{head}</tr>{''.join(grid)}<tr><th>Total</th>{totals}</tr></table></section>
+<section><h2>Diagnoses</h2>{diagnoses or '<p style="color:var(--mute)">None yet.</p>'}</section>
 </main></body></html>"""
 
 
