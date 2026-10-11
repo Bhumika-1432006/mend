@@ -26,6 +26,7 @@ import neatlogs
 from mend.suite import RUNS, git, run_suite
 from mend.tasks import ROOT, load_tasks
 from mend import detections
+from mend.stats import round_stats
 from mend.traces import get_trace, span_lines
 
 MODEL = os.environ.get("MEND_MODEL", "claude-opus-5-5")
@@ -258,6 +259,16 @@ def apply_patch(fix: dict, diagnosis_file: str) -> tuple[bool, str]:
     return True, f"changed {sorted(changed)}"
 
 
+def gate(before: dict, after: dict, stats: dict) -> bool:
+    """The keep rule (docs/GATE.md): more tasks pass, or the same pass with at least 15% fewer tokens.
+    Amendment 1: no task that passed may break, and a token-only win must hold across tasks
+    (paired 95% interval entirely below 1.0), not just in the total."""
+    tokens = lambda r: r.get("input_tokens", 0) + r.get("output_tokens", 0)  # noqa: E731
+    more = after["passed"] > before["passed"]
+    cheaper = after["passed"] == before["passed"] and tokens(after) <= (1 - TOKEN_SAVING) * tokens(before)
+    return (more or cheaper) and stats["broke"] == 0 and (more or stats["ci_high"] < 1.0)
+
+
 def one_round(run_id: str) -> dict:
     if git("status", "--porcelain", "--untracked-files=no"):
         sys.exit("commit or stash tracked changes first; the patch check compares against a clean tree")
@@ -293,8 +304,8 @@ def one_round(run_id: str) -> dict:
     commit = git("rev-parse", "--short", "HEAD")
     after = run_suite([t["task_id"] for t in before["tasks"]], label="after")
     tokens = lambda r: r.get("input_tokens", 0) + r.get("output_tokens", 0)  # noqa: E731
-    kept = after["passed"] > before["passed"] or (
-        after["passed"] == before["passed"] and tokens(after) <= (1 - TOKEN_SAVING) * tokens(before))
+    stats = round_stats({"before": run_id, "after": after["run_id"], "kept": None})
+    kept = gate(before, after, stats)
     if not kept:
         subprocess.run(["git", "revert", "--no-edit", "HEAD"], cwd=ROOT, check=True, capture_output=True)
         # The revert also removed the diagnosis committed with the patch; keep it, it is the evidence of why.
@@ -305,7 +316,7 @@ def one_round(run_id: str) -> dict:
               "after_passed": after["passed"], "total": after["total"],
               "before_tokens": tokens(before), "after_tokens": tokens(after), "commit": commit, "kept": kept,
               "diagnosis": diagnosis_file, "title": diagnosis["fix"]["title"],
-              "diagnosis_usage": diagnosis.get("usage")}
+              "diagnosis_usage": diagnosis.get("usage"), "stats": {**stats, "kept": kept}}
     if kept:  # leave a neatlogs detection behind so this failure is flagged if it ever comes back
         try:
             record["guard"] = detections.create(diagnosis["fix"]["guard"], detections.group_id())

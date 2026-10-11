@@ -63,3 +63,14 @@ def test_choice_stops_before_patching_and_answer_becomes_precedent(tmp_path, mon
                                  "answer": "Always run the full suite.", "asked_in": "r1"}]
     monkeypatch.setattr(sup, "one_round", lambda run_id: record)
     assert len(sup.rounds("r1", limit=3)) == 1  # a pending question stops the chain
+
+
+def test_gate_amendment_rejects_regressions_and_noisy_token_wins():
+    from mend.supervisor import gate
+    run = lambda passed, tok: {"passed": passed, "input_tokens": tok, "output_tokens": 0}  # noqa: E731
+    ok = {"broke": 0, "ci_high": 0.9}
+    assert gate(run(28, 100), run(29, 100), ok)                          # more pass
+    assert not gate(run(28, 100), run(29, 100), {**ok, "broke": 1})      # ...but one broke
+    assert gate(run(29, 100), run(29, 80), ok)                           # 20% cheaper, holds per task
+    assert not gate(run(29, 100), run(29, 80), {**ok, "ci_high": 1.05})  # cheaper only in the total
+    assert not gate(run(29, 100), run(29, 90), ok)                       # 10% is under the threshold

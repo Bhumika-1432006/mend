@@ -20,3 +20,14 @@ them. The code that enforces them is `one_round()` in [`mend/supervisor.py`](../
    README table; `python -m mend.verify` checks the README numbers against those files.
 7. **Known limits.** One re-run per round (repeats are run separately and reported); token counts
    vary run to run by roughly ±10% in our repeats, which is why the token threshold is 15%.
+
+## Amendment 1 (11 Oct 2026, before round 8; rounds 1-7 ran under the rules above)
+
+The paired statistics (`mend/stats.py`, README "How sure is each decision?") showed two gaps:
+a fix that solves one task but breaks another counted as neutral, and a token saving was judged on
+the total alone. From round 8 on, a patch that passes rule 4 is still reverted if
+- **any task that passed before fails after**, or
+- the win is tokens only and the paired 95% bootstrap interval for tokens-after / tokens-before
+  (tasks resampled) does not lie entirely below 1.0.
+
+Every round record now carries these statistics (`stats` in `*.round.json`).
