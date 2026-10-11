@@ -115,6 +115,32 @@ once":
 Round records: the `*.round.json` files in [`runs/`](runs/). Rounds 2 and 3 were run back to back with
 `python -m mend.supervisor <run> --rounds 2`; rounds 4-6 ran from a clean runner clone. **Round 6 was reverted automatically:** it still solved 29/29 but used 3.8% more tokens, so the gate rejected it. Round 5 also created its own neatlogs regression guard ("Mend: slow solve (6+ turns)", matched 5 real spans). Rounds 2-3 "after" figures are single runs. The worker after round 4 was run three times: 29/29 each time ([10-59-46](runs/2026-10-10T10-59-46-after.json) 432,858, [11-13-11](runs/2026-10-10T11-13-11.json) 451,105, [11-18-45](runs/2026-10-10T11-18-45.json) 456,563 tokens). The worker after round 5 was also run three times: 29/29 each time ([11-50-52](runs/2026-10-10T11-50-52-after.json) 347,960, [13-23-02](runs/2026-10-10T13-23-02.json) 346,214, [13-28-51](runs/2026-10-10T13-28-51.json) 302,153 tokens). **Caveat:** the supervisor learns from the same 29 tasks it is scored on, and round 3's prompt includes a rule for hanging test suites learned from task 29; on a held-out set it never sees, it also improved (below).
 
+**How sure is each decision?** The gate looks at one re-run. Each task runs both before and
+after, so the comparison can be paired per task ([`mend/stats.py`](mend/stats.py), following
+Miller, [*Adding Error Bars to Evals*](https://arxiv.org/abs/2411.00640); output in
+[`evidence/gate-stats.json`](evidence/gate-stats.json)):
+
+| Round | Tasks fixed / broken | Sign test p | Tokens after ÷ before | 95% interval (tasks resampled) | Gate |
+|---|---|---|---|---|---|
+| 1 | 1 / 0 | 1.0 | 0.912 | [0.73, 1.156] | kept |
+| 2 | 1 / 0 | 1.0 | 0.89 | [0.749, 1.042] | kept |
+| 3 | 0 / 0 | 1.0 | 0.692 | [0.609, 0.788] | kept |
+| 4 | 0 / 0 | 1.0 | 0.699 | [0.642, 0.764] | kept |
+| 5 | 0 / 0 | 1.0 | 0.762 | [0.702, 0.824] | kept |
+| 6 | 0 / 0 | 1.0 | 1.038 | [0.91, 1.194] | reverted |
+
+What this says, plainly:
+- **Rounds 3–5 are solid.** Each token cut's whole 95% interval sits below 0.85, the gate's own
+  threshold.
+- **Rounds 1 and 2 were kept on a single task flipping** from fail to pass. That alone is not
+  statistically convincing (p = 1.0), and their token intervals include "no change". Round 1 is
+  backed separately by the 3-vs-3 repeat runs below, where every repaired run solved more tasks than
+  every original run (28, 28, 28 vs 27, 26, 27), and task 23 passed 3 of 3 times instead of 0 of 3.
+- **Round 6's revert was right.** Its interval spans 1, so nothing was gained.
+
+**Caveat:** the interval resamples tasks, not repeated runs, so it does not capture one task's
+run-to-run noise.
+
 **The first bug Mend found in itself.** The worker read only the first 200 lines of the
 233-line `ledger.py`, then rewrote the whole file to change one word. That silently deleted
 everything after line 200. Task 23 failed at the 15-turn limit; after the fix it passed in 8

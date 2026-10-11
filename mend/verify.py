@@ -55,6 +55,9 @@ def expected_strings(rs: dict[str, dict]) -> list[str]:
             mb, ma = (sum(map(tokens, g)) / len(g) for g in (hb, ha))
             out += [f"{', '.join(str(r['passed']) for r in hb)} of {hb[0]['total']}", f"{mb:,.0f}",
                     f"{', '.join(str(r['passed']) for r in ha)} of {ha[0]['total']}", f"{ma:,.0f} ({pct(mb, ma)})"]
+    from mend.stats import all_rounds
+    for i, r in enumerate(all_rounds(), 1):
+        out.append(f"| {i} | {r['fixed']} / {r['broke']} | {r['p_passes']} | {r['token_ratio']} | [{r['ci_low']}, {r['ci_high']}] |")
     usage = ROOT / "evidence" / "tool-usage.json"
     for u in (json.loads(usage.read_text(encoding="utf-8")).values() if usage.exists() else []):
         c = u["counts"]
